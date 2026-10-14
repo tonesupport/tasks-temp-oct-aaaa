@@ -1,10 +1,3 @@
-@font-face {
-  font-family: "Atkinson Next";
-  src: url("fonts/atkinson-next-regular.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
 
 /* =============================================================================
    artifacts.css — shared HTML design layer for field routes, diagrams,

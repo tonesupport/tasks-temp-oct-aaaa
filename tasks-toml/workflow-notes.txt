@@ -71,3 +71,7 @@ Entry 12, 2026-10-14: check.py tiers, and the show verb
 check.py has two tiers. Hard failures are integrity only: the patch applies to its base, the result parses, almanac validate passes, status is in the enum, done has completed, sched has datetime, created is unchanged, no task blocks itself, ids are well formed, no content key. Everything stylistic is a warning. A snapshot hash mismatch is a warning saying the file has moved on. Known wrinkle: almanac validate itself still errors on the duration rule, so check.py downgrades that single case to a warning; the validator was not changed.
 
 Also done in the same release: almanac show ID prints one task by identity, and ls id=ID now filters by the table id instead of silently returning nothing (task mn9k). Still open: the spec line saying reads go through almanac is written, but nothing enforces it.
+
+Entry 13, 2026-10-14: Atkinson Next removed from the skin
+
+The Atkinson Next font face was declared in artifacts.css but no rule used it, so it was removed along with its file. The preview now embeds the 13 IBM Plex faces only. Fonts reach the preview at render time: almanac preview reads each url("fonts/...") in the skin CSS and inlines the file as a base64 data URI. The font license file stays in the skin folder and is never written into the HTML.
