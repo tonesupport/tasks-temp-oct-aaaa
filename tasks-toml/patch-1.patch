@@ -1,0 +1,447 @@
+--- a/tasks.toml
++++ b/tasks.toml
+@@ -4808,3 +4808,444 @@
+ created = 2610121547
+ updated = 2610121743
+ tags = ['task', 'acct']
++
++[2p2d]
++title = 'Write a flat by-folder inventory of the matia external drive'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++matia is an external hard drive (not the internal PC drive). It is filling up and needs sorting. The survey proposes a flat list, for example matia-inventory.txt, of what is on it by folder, so it is clear what has to move before the Windows reinstall.
++Source: ground truth survey 260710, sections 1.1 and 9.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[x32g]
++title = 'List where each part of the strix C: drive is backed up and what is not'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++The strix C: drive is not fully backed up. Pieces are at various stages of moving to matia, tosu-space, or MEGA, and the record of what is where was lost as the work grew. Produce one list: each top-level C: folder, where its copy lives, and whether that copy is verified. The existing MEGA Desktop upload of /strix (strix-bup project) may already hold part of it.
++Source: ground truth survey 260710, section 5.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[lwkz]
++title = 'Zip and upload the upload-to-tosu-space staging folder to tosu-space'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++The staging folder is a recent archive, started so Windows on strix could be reinstalled. Everything stalled in it because the drive is too full to zip the folders the intended way. Free enough space to zip, then upload each archive to tosu-space named YYMMDD-relevant-name.zip. Check first whether the same content is already in MEGA /strix.
++Source: ground truth survey 260710, sections 1.2 and 2.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[upw8]
++title = 'Reinstall Windows on strix'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++strix is the main editing machine. Reinstall once the matia inventory, the strix C: backup list, and the staging-folder upload are done.
++Source: ground truth survey 260710, sections 1.1, 5.2, and 9.
++'''
++blockers = ['2p2d', 'x32g', 'lwkz']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[gud1]
++title = 'Restore the plat, tset, and dep folders on strix after the Windows reinstall'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++plat is a large directory of A/V applications that are not plugins (for example the Renoise installer and a portable VCV Rack install). It is currently loose on strix and is to be carried over to the new install. tset (the portable Reaper install) and dep (plugins and plugin installers) are described next to it in the survey; this task assumes they are restored too, which the survey does not state outright.
++Source: ground truth survey 260710, sections 1.3 and 3.1.
++'''
++blockers = ['upw8']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[z3ul]
++title = 'Decide whether zumaia or xafla is the daily development environment'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++zumaia is the DigitalOcean VPS (about $35/mo, which the survey says includes the DO Spaces bucket). It is reliable but underused and has roughly 80 GB free. xafla is the portable Windows/Git Bash environment that mirrors it; running from xafla would remove the VPS cost but every backup would be self-managed. Everything important from zumaia is already in xafla (latest log, guidebooks), so either choice is workable. If zumaia stays the daily driver, a VS Code Server or another replacement for tmux is wanted.
++Source: ground truth survey 260710, sections 3 (intro), 3.1, and 5.1.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[h10d]
++title = 'Build out xafla as the daily shell environment on the reinstalled strix'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++An earlier plan for a portable Debian qcow image run under qemu with a daily backed-up overlay (called harea in the survey) exists but is not attached to the survey. Review it as part of this task.
++Source: ground truth survey 260710, sections 3.1, 5.2, and 9.
++'''
++blockers = ['upw8', 'z3ul']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[asdr]
++title = 'Inventory every copy of shelf (zumaia, Dropbox, strix sync) and list what exists in only one place'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++shelf is long-term deep storage on zumaia, but other copies exist: Dropbox is being treated as a shelf, and strix has a shelf inside sync. Dropbox sync/desk holds med, fin, and ring; part of that is on zumaia shelf (fin, ring, music, dev) but not all of it. List per copy what it holds and what exists in only one place.
++Source: ground truth survey 260710, sections 1.2, 1.3, and 3.1.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[0714]
++title = 'Merge the shelf copies into one deep-storage location'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++Pick the single target first; the survey says deep storage should mean one specific place and today it means several. Dropbox content otherwise follows the existing Dropbox-to-MEGA migration tasks; this task is about the shelf folders themselves.
++Source: ground truth survey 260710, sections 1.3 and 3.1 (shelf rated HOT, needs consolidating).
++'''
++blockers = ['asdr']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[o8l3]
++title = 'Downsize the Dropbox plan to a smaller active tier after the migration'
++status = 'later'
++domain = 'FIN'
++project = 'ground-truth-org'
++notes = '''
++Dropbox costs about $40/mo. The survey's first pass is a smaller active tier rather than cancelling: keep client-collaboration shares and move the bulk elsewhere. Do this after the bulk migration and the client-share stay-set check.
++Source: ground truth survey 260710, sections 1.2, 1.6, and 2.2.
++'''
++blockers = ['1img']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[k4ja]
++title = 'Write down the intake path and naming convention from working files to tosu-space'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++There is no clear path from a working file to the archive, so files pile up in the upload staging folder and in Dropbox. Write the path as steps: where files are staged, how they are zipped and named (currently YYMMDD-relevant-name.zip), where they are uploaded, and how each upload is verified. Current tosu-space top-level folders: sort, ether, keys, moments, projects, rafters, snaps, tools.
++Source: ground truth survey 260710, sections 2.1 and 2.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[29h5]
++title = 'Consolidate the scattered keys and ring folders into one location'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++keys in tosu-space and ring in Dropbox hold the same kind of material (passwords and similar) and are scattered; part of it is also on zumaia shelf. Choose one home and move or reference the rest. Work from folder names and sizes; do not copy secrets into notes.
++Source: ground truth survey 260710, section 1.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[ktv0]
++title = 'Reconcile the separate tool (bin) directories on zumaia, xafla, and the Dropbox backup'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++tool is shorthand for bin and exists in several places, and the copies differ: the Dropbox backup is Debian binaries, and xafla has tools of its own. Compare them and decide which copy is canonical.
++Source: ground truth survey 260710, section 1.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[z6dg]
++title = 'Update stencil from the two SKILL folders in the traces codespace'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++stencil holds skills and context primers recently pulled from Dropbox. It is outdated relative to the recent traces work, and the traces codespace has two SKILL folders of its own. Bring stencil up to date from them.
++Source: ground truth survey 260710, section 1.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[6tnp]
++title = 'Build a repeatable way to retrieve every source on each guidebook reading list'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++Each guidebook has a reading list of roughly 200 sources. Open-access PDFs are currently pulled one at a time with the scite MCP from the codespace. Build a procedure that can retrieve every source on a list by whatever means a remote, web-connected host can use. The pull is a one-time job: once the sources are local, the guidebooks become a self-contained offline project.
++Source: ground truth survey 260710, section 3.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[5xaj]
++title = 'Copy the guidebook source PDFs out of Codespaces to permanent storage'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++The guidebook PDFs live in Codespaces, which is filling up. The survey says the PDFs should stay with the guidebook repos, so copy them to the standalone guidebooks location and confirm counts before anything is removed from Codespaces. zumaia has only about 80 GB free, so check sizes before choosing the destination.
++Source: ground truth survey 260710, sections 1.2 and 3.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[j05w]
++title = 'Remove the guidebooks tree from the traces repo'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++guidebooks began inside the traces repo and has outgrown it. A standalone copy exists in xafla (survey section 9 marks the move done), but the annotation in 3.1 says the traces tree itself still needs cleaning. Remove the guidebooks tree from traces after confirming the standalone copy is complete. traces is committed and synced to a GitHub remote, so the removal needs a commit there.
++Source: ground truth survey 260710, sections 3.1, 3.2, and 9.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[pv2p]
++title = 'Move the traces repo off Codespaces to its permanent development environment'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++traces is the browser-based live coding environment (S7 Scheme and raylib) and is rated HOT. It lives in Codespaces, which cannot serve as the zumaia replacement it was planned to be. Move it to whichever environment is chosen as the daily one. The survey notes a preference for jj on top of git, no allegiance to GitHub, and an available Merveilles forge and sourcehut account.
++Source: ground truth survey 260710, sections 1.2 and 3.1.
++'''
++blockers = ['z3ul']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[1j9f]
++title = 'Find out whether DaVinci Resolve uses a local or disk project database'
++status = 'later'
++domain = 'CTP'
++project = 'ground-truth-org'
++notes = '''
++The answer decides the Resolve backup method. Resolve keeps projects in a database that is either a disk database or a PostgreSQL database; check which one is in use from Project Manager (the Project Libraries panel). Verify the exact menu path in the app.
++Source: ground truth survey 260710, sections 4.2 and 4.3.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[zo3r]
++title = 'Back up the DaVinci Resolve project database and settings'
++status = 'later'
++domain = 'CTP'
++project = 'ground-truth-org'
++notes = '''
++One-time backup, with the method set by the database type. The survey named tosu-space as the destination; MEGA is now the main backup target elsewhere in this file. Reaper settings are already backed up per the survey annotation, so only Resolve is open.
++Source: ground truth survey 260710, sections 4.3 and 9 (tier 2).
++'''
++blockers = ['1j9f']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[l2it]
++title = 'Check whether raw episode files are still stored locally for episodes whose Opus Clips have expired'
++status = 'later'
++domain = 'CTP'
++project = 'ground-truth-org'
++notes = '''
++Opus Clips is a client-required tool on a client-paid account. Storage went over the 100 GB cap and clips are expiring. Find out whether expiry loses data or only the AI-processed versions by confirming the raw full-length recordings are still on local storage or in the Reaper and Resolve project storage. Current process: the full-length episode goes through Opus Clips, about six clips are picked and sent to the client, the client picks two or three, and those are edited into the hook.
++Source: ground truth survey 260710, sections 1.4 and 4.2.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[rzh3]
++title = 'Set a retention rule for Opus Clips exports and raw episode files'
++status = 'later'
++domain = 'CTP'
++project = 'ground-truth-org'
++notes = '''
++Cancelling or downgrading is not an option because the client requires the tool. Decide how long exports and source files are kept and where (local, MEGA, or tosu-space) so that expiry never destroys the only copy.
++Source: ground truth survey 260710, section 9 (tier 2) and the annotation on the Opus Clips decision.
++'''
++blockers = ['l2it']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[3c2y]
++title = 'Build a fixed per-episode invoice template in Typst'
++status = 'later'
++domain = 'CTP'
++project = 'ground-truth-org'
++notes = '''
++One episode per week with fixed labor for each part of the process. Build a simple template that is filled in per episode. The survey proposed baking actual-hours tracking in, but the annotation on 4.1 says the user does not intend to hand over a timesheet as a 1099 contractor and asks to revisit this next round, so hours tracking is out of scope here. The current Aug/Sep invoice is tracked separately.
++Source: ground truth survey 260710, sections 4.1 and 9 (tier 2).
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[ivrv]
++title = 'List every recurring subscription with its monthly cost'
++status = 'later'
++domain = 'FIN'
++project = 'ground-truth-org'
++notes = '''
++Tech subscriptions are estimated at $200-300/mo and there are more than can be counted. Build a list with service, monthly cost, purpose, and renewal date, including streaming, tools, and memberships. Known so far: zumaia VPS (about $35/mo, includes DO Spaces), Dropbox (about $40/mo), Opus Clips (paid by the client), Codespaces (cost unknown). Two cancellations dated Nov 3 are already tracked.
++Source: ground truth survey 260710, section 1.6.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[qop3]
++title = 'Mark each subscription keep, cut, or downgrade'
++status = 'later'
++domain = 'FIN'
++project = 'ground-truth-org'
++notes = '''
++Go through the subscription list and mark each line. The survey's first candidates: Dropbox (downsize, see the Dropbox plan task), zumaia (depends on the daily-environment decision), Codespaces (phase out is an open question).
++Source: ground truth survey 260710, section 1.6.
++'''
++blockers = ['ivrv']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[aws0]
++title = 'Get written confirmation of how Medi-Cal evaluated the tax household'
++status = 'later'
++domain = 'MED'
++project = 'ground-truth-org'
++notes = '''
++The user qualified for Medi-Cal and is already using it. Taxes are filed married filing separately, so the tax household is one person. M doubts the eligibility determination will hold up. Get something in writing from the Medi-Cal office showing the tax household (one person, filing separately) was properly evaluated.
++Source: ground truth survey 260710, section 1.5.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[rn2z]
++title = 'Turn the SOU action items into a weekly chore checklist shared with M'
++status = 'later'
++domain = 'HH'
++project = 'ground-truth-org'
++notes = '''
++SOU is the weekly state-of-the-union meeting with M, tracked in a Google Doc, and it is not translating into chores getting done. Convert the doc's format into a weekly checklist with concrete items for both people. Meeting reminders already exist; this is about the output of each meeting. This is a material way to show support for M.
++Source: ground truth survey 260710, sections 1.5 and 9 (tier 3).
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[mqro]
++title = 'Write down the first ITAA bottom line'
++status = 'later'
++domain = 'MED'
++project = 'ground-truth-org'
++notes = '''
++Just one anchor, not the whole framework of bottom, middle, and top lines. The survey annotation's first-pass candidate is all-nighters (none since March 15 as of July).
++Source: ground truth survey 260710, sections 6.1 and 9 (tier 3).
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[z6cq]
++title = 'Attend the Friday 3:00p ITAA+Autism meeting'
++status = 'sched'
++domain = 'MED'
++project = 'ground-truth-org'
++notes = '''
++The meeting is weekly on Fridays at 3:00p. The user already attends the Wednesday 12:30p ITAA+OCD meeting regularly and is interested in attending this one regularly too. This entry is the next Friday; repeat weekly if it works out.
++Source: ground truth survey 260710, section 1.5.
++'''
++datetime = 'Fri Oct 16 26'
++time = '3:00p'
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[1d5w]
++title = 'Check each hardware studio purchase for missing power supplies'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++Power supplies appear to be missing from a few pieces of hardware studio gear. Go through each purchase and list what is missing.
++Source: ground truth survey 260710, section 1.5.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[bupa]
++title = 'List hardware studio purchases that can still be returned, with return deadlines'
++status = 'later'
++domain = 'FIN'
++project = 'ground-truth-org'
++notes = '''
++The hardware studio was overbought and is underused. Track which purchases can still be returned and the return deadline for each.
++Source: ground truth survey 260710, sections 1.5 and 8.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[mfot]
++title = 'Build a portable Ableton Live 12.4 Suite kit: installer plus organized User Library'
++status = 'later'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++Ableton Live 12.4 Suite is owned. Plan: carry the installer plus a well-organized User Library holding all Max devices and samples, which avoids the plugin dependencies of the Reaper setup. Not started. Follows the physical studio being packed and the space being set up.
++Source: ground truth survey 260710, sections 3.1 and 9 (tier 4).
++'''
++blockers = ['5trz']
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']
++
++[8fly]
++title = 'Process, edit, and sort the samples in the kits Reaper project'
++status = 'deferred'
++domain = 'DEV'
++project = 'ground-truth-org'
++notes = '''
++kits is a large folder of hundreds of saved Koala kits that were unzipped and placed into a Reaper project. Both copies still exist. The survey annotation rates this unimportant and says there is no time for it, but it still costs attention. The survey table also lists a wish to move the kits system to xafla.
++Source: ground truth survey 260710, sections 1.3 and 3.1.
++'''
++created = 2610131729
++updated = 2610131729
++tags = ['task', 'tosu']

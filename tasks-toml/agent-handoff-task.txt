@@ -1,0 +1,48 @@
+task: changes to make to this system:
+handoff agent:
+Before proposing anything, I'm checking exactly which rules check.py hard-fails and what patch-applying code already exists.
+Short answer on the patch applier: you're right, there's none. check.py and task-preview.py each have a private applier that works in memory on a temp copy, but nothing writes a patched file out. Here is how I'd approach the rest, with decisions for you at the end.
+Deletions. Today the rule exists in three places: task-spec.md section 7, the removal check in check.py, and the delete earmark I bolted on earlier. I'd drop the earmark and make a removal an ordinary change. check.py would report removed tasks as a WARN naming them, so a reviewer still sees them, but it would never fail on them. changes.md would take a plain delete line, with the reason optional. REMOVE stays as the reviewable option, and the spec would say so.
+Which checks stay hard. I'd split check.py into two tiers instead of relaxing everything. The hard-fail tier is integrity:
+The patch applies, and the result parses as TOML.
+Almanac validate passes.
+The status is in the enum.
+done has completed, and sched has datetime.
+created is unchanged, and no task blocks itself.
+IDs have the right format.
+There is no content key.
+Everything stylistic would drop to WARN:
+Master-plan codes in titles.
+The id inside a title.
+Tag quoting style.
+The duration rule.
+The changes.md line requirements.
+The coverage file.
+The snapshot hash mismatch, which becomes "your file has moved on, check for conflicts".
+I'd keep the integrity tier hard because those failures produce a file almanac can't read.
+The apply tool. apply-patch.py PATCH TARGET would work like this:
+It writes TARGET.patched by default and never touches the target.
+A --in-place flag would write a timestamped .bak first.
+It runs almanac validate on the result and refuses to write if that fails, unless forced.
+It prints what it did: how many tasks were added, changed and removed.
+It matches hunks strictly, with no fuzz, and on a mismatch it names the hunk that failed.
+The bigger design question is rebasing. The snapshot is from Oct 13 and the live file keeps moving, so a line-diff patch will often conflict on a live target. A table-level mode would apply per task id instead: insert new ids, replace or remove the touched ones, and leave everything else alone. It survives a moving file, which a line diff can't. It also fits this file's table-per-task shape, so I'd build it as the primary mode, with the line-diff apply as a fallback.
+Decisions I need from you
+By "test.toml" do you mean tasks.toml, or a scratch test file? I'm assuming tasks.toml.
+Do you want the table-level rebase mode, or only the simple line-diff apply?
+Should the tool ever write to a live file directly with a backup, or always write a new file for you to swap in? I'd always write a new file.
+Should policies.md keep "never commit or push" and "never touch live files"? Those aren't task rules, and I'd keep them.
+Once you've decided, I'll build it as task-writing-kit-v002, since the changelog says versions are plain integers, with the changelog entry and a fresh zip. I'd also fold in the REMOVE support and the show verb from mn9k, if you want those in the same release.
+
+user response:
+I meant tasks.toml
+
+table-level rebase mode should be implemented with line-diff as a fallback
+
+always write new file
+
+remove as a status is fine as long as it's filter in the html is defaulted to whatever state makes it not show those tasks in the interface
+
+warn instead of fail on remove is good
+
+yes, drop the delete earmark and replace with the removal protocol - why does a changes.md need to exist? I'd prefer instead that changes per task (or set of tasks) is encoded into the task notes value in the toml itself when you write the patch with some format like notes="<whatever exists, don't overwrite/append>\n>change (YY-MM-DD HH:MM(12hr format)): <change note>" so when we re-apply a patch, myself and future agents can get a better understanding of the context"

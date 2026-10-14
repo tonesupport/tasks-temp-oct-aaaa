@@ -1,0 +1,73 @@
+Workflow notes for the task-writing kit
+
+This file records decisions about how the task system itself should operate, kept apart from the task content. It is persistent: changes.md is scoped to one patch and gets regenerated, while this file accumulates. One entry per decision, dated, factual. Entries record what was decided and what is still open, so a future session or another agent can pick up the protocol without the conversation that produced it. Add new entries at the end. These notes are provider-neutral: the user works across several agents and providers, so entries say "agent", "voice agent" or "working agent" and never name a specific assistant, product or vendor.
+
+Entry 1, 2026-10-14: REMOVE status
+
+The user decided that tasks can carry an uppercase status value REMOVE. Such a task stays in tasks.toml, renders in the patch and preview, and can be hidden in the HTML interface. It was chosen over deleting entries because the kit's rule is that tasks are never deleted, and because a first attempt to delete entries from the scratch copy was blocked by an automated permission check in the working environment, which led the user to ask for a status-based alternative. Set it with almanac set ID status=REMOVE and record it in changes.md as changed.
+
+Implementation in the kit copy: STATUS_ENUM and STATUS_ORDER in tools/scripts/almanac.tcl, STATUS_ENUM in check.py, STATUS_ORDER in task-preview.py, and the status list in task-spec.md section 2. In the preview, GLOBAL has a new remove value that cycles include, exclude, clear like done and blocks. Default shows REMOVE cards, include shows only them, exclude hides them. The board script lowercases statuses internally, so the filter key is remove while the file value stays REMOVE. Tested in a headless browser.
+
+Open: the live almanac.tcl and the live board export are outside the kit and have not been changed. Both need REMOVE added before a REMOVE task can be written or rendered there. As of this entry, mgp1 carries REMOVE in the working copy.
+
+Entry 2, 2026-10-14: Delete earmark exception to the never-delete rule
+
+The spec said never delete a task, and check.py failed any patch that removed one. The user explicitly approved deleting two tasks, bv58 and wz0h, as an override. The decision was to keep the rule as the default and add an explicit, visible exception: a removal passes check.py only when changes.md has a line in the form id, two spaces, delete, two spaces, a reason containing the words user-approved. check.py then reports a WARN naming the removed tasks so a reviewer still sees them. Without that line the removal still fails. This was tested both ways.
+
+The entries are removed by hand edit because almanac has no delete verb. task-spec.md section 7 and section 9 describe the exception and the new delete line kind. The user later confirmed that the two existing deletes stand. The original check.py is saved beside it as check.py.orig.
+
+Note: this change was made reactively during the session, after the gate blocked the work. Whether the exception should exist long term, or whether REMOVE should replace deletion entirely, is not settled.
+
+Entry 3, 2026-10-14: Almanac show verb and the split between list and show
+
+The user wants all reads and writes of tasks.toml to go through almanac.tcl, including single-task lookups, and asked for a task to add a show verb. It was added as task mn9k in domain almanac, status later.
+
+The agreed functional split is this. The ls and filter verbs stay multi-result and field-based: criteria go in, zero or more tasks come out. The show verb is single-result and identity-based: the id names exactly one task and the verb returns its full fields, with no filter logic. The distinction is lookup by criteria versus lookup by identity, the same split most command-line tools draw between search and get. The same text is in the notes of mn9k.
+
+Entry 4, 2026-10-14: ls id=ID silently returns nothing
+
+Finding, tested against work/tasks.toml: almanac ls id=84if exits 0 and prints nothing, with no error. ID=84if and has=id behave the same way. The cause is that the id is the table name, such as the header for 84if, not a field inside the task, and the filters only match fields. The empty result is indistinguishable from no such task, which is misleading. Fixing this is part of mn9k: either make id filterable, or make an unknown filter key an error instead of an empty result. The domain filter works as documented, for example ls domain=almanac.
+
+Entry 5, 2026-10-14: Reads are not yet specified to go through almanac
+
+The user intends all reads and writes to go through almanac, and asked whether the kit documents already say so. They do not fully. The statements about almanac cover writes: context-brief.md says almanac.tcl is the only sanctioned writer, and task-spec.md section 7 says to use almanac verbs and hand-edit only when almanac cannot make the change. Nothing says reads must go through almanac, and task-spec.md section 8 explicitly allows grep when checking for existing tasks. During this session lookups were done with grep and direct reads, which the wording allowed. Open: add a spec line that reads and writes both go through almanac, and remove the grep allowance once the show verb exists.
+
+Entry 6, 2026-10-14: Conduct for voice sessions and handoffs between agents
+
+The user stated these for sessions where a voice agent passes work to a working agent. Responses should be terse. While waiting on the working agent, say only that the request was sent and then stay quiet until it returns, with no repeated no-result updates. Task management and the design of the protocol itself happen together, so helpful workflow adjustments are recorded in this file for later agents.
+
+Observed friction, not yet resolved: each handoff round trip is slow for a quick single-fact lookup such as a status. Routing lookups through almanac, with the show verb, is the proposed way to make them cheap. Misheard IDs, such as mg1p for mgp1, and handwriting transcription need a confirmation round and are treated as ordinary human to machine friction, not a system fault. The spec rule never to guess an ID worked correctly in that case.
+
+Entry 7, 2026-10-14: Reusing an unshipped task instead of closing it
+
+When a task created earlier in the same working copy had to be split into several, the first task was retitled for the first part and new ones were added for the rest, instead of marking the original done. The original did not exist in the snapshot, so marking it done would have put a finished task in the patch that never existed, and removing it would have needed a hand edit. This is a working practice, not a spec rule yet.
+
+Entry 8, 2026-10-14: Hold and resume keywords for voice sessions
+
+The user needs a hands-free way to pause the line without touching the phone, for example when their hands are full or they are doing something else. The convention is two keywords. Saying hold means the voice agent says "holding", then goes quiet and does nothing of its own until the user says resume. Saying resume means the voice agent comes back in by saying resumed and continues. Work already running in the background with a working agent may carry on during a hold; the keyword only controls the voice agent's own turn-taking, so it works like putting the user on mute.
+
+Resolved, same day: the user clarified that a brief acknowledgement on hold is fine. On hold, the voice agent says "holding" and then goes quiet. On resume, it says "resumed" and continues. Nothing else is said in between.
+
+Open items
+
+The items still open are: REMOVE support in the live almanac and the live board export; deciding whether the delete earmark stays alongside REMOVE; the show verb and the id filter behavior in mn9k; and the spec wording that reads go through almanac. Add outcomes to this file as each one is decided.
+
+Entry 9, 2026-10-14: Apply and preview are almanac verbs
+
+The user decided that the user-facing patch tools live inside almanac.tcl as verbs, written in Tcl for 9.0.4, instead of separate Python scripts. almanac apply PATCH rebases a unified diff onto the file named by --file and writes FILE.patched (or --out); it never modifies the target. almanac preview ?OUT.html? renders the file as one standalone page; with --base it marks new, changed, done and REMOVE cards and adds a review panel. Only check.py stays Python. make-patch.py was dropped because plain diff -u does the same job.
+
+Apply is table-level by task id (insert new ids, replace or remove touched ids, leave everything else alone) so it survives a target that has moved on since the snapshot, with a strict line diff as the fallback. A task that the target changed since the base is reported as a conflict, the target's version is kept, and the exit code is 3; --take-patch takes the patch's version. Re-applying a patch is harmless. Open: the base must be known for table-level mode (--base, or snapshot/tasks.toml beside the kit).
+
+Entry 10, 2026-10-14: Change history lives in task notes, not changes.md
+
+changes.md is dropped. Each change to a task is recorded in that task's own notes as a line of the form greater-than sign, change, a parenthesized YY-MM-DD hh:mm AM/PM stamp, a colon, and a short why, appended after whatever notes exist. Existing notes text is never overwritten. almanac change ID TEXT writes the line and bumps updated, so almanac stays the writer. check.py warns when a touched task has no new change line or its existing notes were altered. Open: the stamp format is the agent's choice of 26-10-14 02:35 PM and can be changed in one place, almanac::change_stamp.
+
+Entry 11, 2026-10-14: Removal protocol replaces the delete earmark
+
+Removing a task is an ordinary change; check.py reports removed tasks as a warning that names them and never fails on them. REMOVE stays as the reviewable status, and the HTML board hides REMOVE cards by default (the remove filter starts in the exclude state; clicking it shows them, a second click shows only them). The delete earmark and the delete line kind in changes.md are gone.
+
+Entry 12, 2026-10-14: check.py tiers, and the show verb
+
+check.py has two tiers. Hard failures are integrity only: the patch applies to its base, the result parses, almanac validate passes, status is in the enum, done has completed, sched has datetime, created is unchanged, no task blocks itself, ids are well formed, no content key. Everything stylistic is a warning. A snapshot hash mismatch is a warning saying the file has moved on. Known wrinkle: almanac validate itself still errors on the duration rule, so check.py downgrades that single case to a warning; the validator was not changed.
+
+Also done in the same release: almanac show ID prints one task by identity, and ls id=ID now filters by the table id instead of silently returning nothing (task mn9k). Still open: the spec line saying reads go through almanac is written, but nothing enforces it.

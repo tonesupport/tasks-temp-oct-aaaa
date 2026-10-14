@@ -1,0 +1,55 @@
+--- snapshot/tasks.toml
++++ work/tasks.toml
+@@ -4789,22 +4789,44 @@
+ 
+ [tz57]
+ title = 'Tell SG: no 29th meeting (SF)'
+-status = 'later'
++status = 'done'
+ domain = 'CTP'
+ created = 2610121536
+-updated = 2610121536
++updated = 2610131716
+ tags = ['task', 'tosu']
++completed = 2610131716
+ 
+ [80d5]
+ title = 'Venice cancels Nov 3'
++status = 'later'
++created = 2610121547
++updated = 2610131716
++tags = ['task', 'acct', 'tosu']
++domain = 'FIN'
++datetime = 'Tue Nov 3 26'
++
++[wcsd]
++title = 'Claude cancels Nov 3'
+ status = 'later'
+ created = 2610121547
+ updated = 2610121743
+ tags = ['task', 'acct']
+ 
+-[wcsd]
+-title = 'Claude cancels Nov 3'
+-status = 'later'
+-created = 2610121547
+-updated = 2610121743
+-tags = ['task', 'acct']
++[mcd7]
++title = 'Find out whether Resolve uses a local or disk project database'
++status = 'later'
++domain = 'CTP'
++notes = '''
++Decides the Resolve backup method. Check in Project Manager > Project Libraries.
++'''
++created = 2610131716
++updated = 2610131716
++tags = ['task', 'tosu']
++
++[8zg9]
++title = 'Write the first ITAA bottom line'
++status = 'later'
++domain = 'MED'
++created = 2610131716
++updated = 2610131716
++tags = ['task', 'itaa', 'tosu']

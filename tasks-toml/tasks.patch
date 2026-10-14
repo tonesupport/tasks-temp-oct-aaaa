@@ -1,0 +1,549 @@
+--- snapshot/tasks.toml
++++ work/tasks.toml
+@@ -2290,7 +2290,7 @@
+ 
+ [mgp1]
+ title = 'MEGA Pro I — one-month operational try-out'
+-status = 'today'
++status = 'REMOVE'
+ domain = 'storage'
+ project = 'mega-pro'
+ notes = '''
+@@ -2300,7 +2300,7 @@
+ Storage primed 260929: MEGAcmd session live, Free 20 GB (~8.5 GB used); upgrade is user payment step. Pre-renewal timer: mgpr + routine mega-pro-i-review (Mon Oct 26 9:11a PT). Not legal advice.
+ '''
+ created = 2609291712
+-updated = 2609291712
++updated = 2610141107
+ tags = ['task', 'timer', 'mega', 'storage']
+ 
+ [mgpr]
+@@ -2888,35 +2888,32 @@
+ 
+ [yoov]
+ title = 'Send Bonanno final cut to Liam'
+-status = 'today'
++status = 'done'
+ domain = 'CTP'
+ project = 'CTP-V'
++created = 2609301538
++updated = 2610141127
++tags = ['task', 'tosu']
++blockers = ['40z9']
++completed = 2610141127
++
++[gqls]
++title = 'Edit Lovely audio'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-327'
+ notes = '''
+ '''
+ created = 2609301538
+ updated = 2609301541
+ tags = ['task', 'tosu']
+-blockers = ['40z9']
+-
+-[gqls]
+-title = 'Edit Lovely audio'
+-status = 'later'
+-domain = 'CTP'
+-project = 'CTP-327'
+-notes = '''
+-'''
+-created = 2609301538
+-updated = 2609301541
+-tags = ['task', 'tosu']
+ 
+ [wpu1]
+ title = 'Send out next batch of guest previews'
+-status = 'today'
++status = 'urgent'
+ domain = 'CTP'
+-notes = '''
+-'''
+ created = 2609301538
+-updated = 2609301553
++updated = 2610141122
+ tags = ['task', 'tosu']
+ 
+ [9aws]
+@@ -3302,25 +3299,9 @@
+ agent_notes = 'D=R+M'
+ completed = 2610041500
+ 
+-[bv58]
+-title = 'Couples therapy'
+-status = 'sched'
+-notes = '''
+-R: HOLDING CAPACITY for MAINTAINING RELATIONSHIP
+-'''
+-agent_notes = 'D=R+M; reminder wake fired 2026-10-13 4:02p PT'
+-datetime = 'Tue Oct 13 26'
+-time = '4:00p'
+-reminder = 0
+-signaling-command = 'Couples therapy (D=R+M)'
+-coordinating-agents = ['clock']
+-created = 2610011738
+-updated = 2610131602
+-tags = ['task', 'timer']
+-
+ [7qrd]
+ title = 'SOU agenda — ideate/lock + confirm with M'
+-status = 'sched'
++status = 'done'
+ domain = 'HH'
+ agent_notes = 'D=R+M; SOU prep'
+ datetime = 'Sat Oct 10 26'
+@@ -3329,12 +3310,13 @@
+ signaling-command = 'SOU morning: ideate/lock agenda; confirm meeting with M'
+ coordinating-agents = ['clock']
+ created = 2610011746
+-updated = 2610100850
++updated = 2610141053
+ tags = ['task', 'timer', 'tosu']
++completed = 2610141053
+ 
+ [b419]
+ title = 'SOU — confirm agenda lock'
+-status = 'sched'
++status = 'done'
+ domain = 'HH'
+ agent_notes = 'D=R+M; SOU prep'
+ datetime = 'Sat Oct 10 26'
+@@ -3343,8 +3325,9 @@
+ signaling-command = 'SOU T-3h: confirm agenda lock before 3:00p meeting'
+ coordinating-agents = ['clock']
+ created = 2610011746
+-updated = 2610101202
++updated = 2610141053
+ tags = ['task', 'timer', 'tosu']
++completed = 2610141053
+ 
+ [h8i6]
+ title = 'When MEGA Desktop sync finishes: give user instructions to de-sync/unpair so Mega keeps files and Strix local can be removed'
+@@ -3779,15 +3762,16 @@
+ 
+ [knel]
+ title = 'SOU'
+-status = 'sched'
++status = 'done'
+ agent_notes = 'D=R+M'
+ datetime = 'Sun Oct 11 26'
+ time = '3:00p'
+ reminder = 0
+ coordinating-agents = ['clock']
+ created = 2610031507
+-updated = 2610111505
++updated = 2610141053
+ tags = ['task', 'timer']
++completed = 2610141053
+ 
+ [t5ew]
+ title = 'Muse promo account, user at tosu'
+@@ -4130,18 +4114,6 @@
+ created = 2610091955
+ updated = 2610121217
+ tags = ['task', 'tosu']
+-
+-[wz0h]
+-title = 'SOU'
+-status = 'sched'
+-agent_notes = 'D=R+M'
+-datetime = 'Sat Oct 17 26'
+-time = '3:00p'
+-reminder = 1
+-created = 2610101503
+-updated = 2610101503
+-tags = ['task', 'timer']
+-coordinating-agents = ['clock']
+ 
+ [1a4z]
+ title = 'Go through stack of mail and add tasks'
+@@ -4336,7 +4308,7 @@
+ 
+ [3bn9]
+ title = 'Cursor cloud-agent workflow in accessible repos, starting with shed'
+-status = 'now'
++status = 'done'
+ domain = 'DEV'
+ project = '2026-winter-gyst'
+ notes = '''
+@@ -4344,8 +4316,9 @@
+ '''
+ blockers = ['mc9i']
+ created = 2610121440
+-updated = 2610121440
++updated = 2610141053
+ tags = ['task', 'ws-rep', 'rep2', 'tier-now']
++completed = 2610141053
+ 
+ [4gwg]
+ title = 'Decide: signals vs spectral-driven grok-team supervisor allocating Cursor cloud agents'
+@@ -4442,15 +4415,16 @@
+ 
+ [5eti]
+ title = 'Inject the mta plot'
+-status = 'now'
++status = 'done'
+ domain = 'DEV'
+ project = '2026-winter-gyst'
+ notes = '''
+ Waiting on comms.
+ '''
+ created = 2610121440
+-updated = 2610121440
++updated = 2610141053
+ tags = ['task', 'ws-fld', 'fld1', 'tier-now']
++completed = 2610141053
+ 
+ [5t68]
+ title = 'Encode ChatGPT and Claude exports as dense spec-compliant plots (muse bulk)'
+@@ -4492,15 +4466,16 @@
+ 
+ [w2cx]
+ title = 'Pilot plot run with kit v002: loosen limits, refresh example glosses, strip writer names from check.py'
+-status = 'now'
++status = 'done'
+ domain = 'DEV'
+ project = '2026-winter-gyst'
+ notes = '''
+ Kit v002 build itself is done (child task).
+ '''
+ created = 2610121440
+-updated = 2610121440
++updated = 2610141053
+ tags = ['task', 'ws-fld', 'fld5', 'tier-now']
++completed = 2610141053
+ 
+ [1e3b]
+ title = 'Build plot writing kit v002 (live main zip) + test/series add-ons + full test zip'
+@@ -4620,15 +4595,16 @@
+ 
+ [389h]
+ title = 'Mistral test on kit v002 (think mode)'
+-status = 'now'
++status = 'done'
+ domain = 'DEV'
+ project = '2026-winter-gyst'
+ notes = '''
+ Prompt written. If near Sonnet/Opus, becomes paid-quality reviewer after Max lapses.
+ '''
+ created = 2610121440
+-updated = 2610121440
++updated = 2610141053
+ tags = ['task', 'ws-spc', 'spc8', 'tier-now']
++completed = 2610141053
+ 
+ [53mv]
+ title = 'OCR guidebooks refs into stable artefacts with OCRmyPDF/Tesseract ($0) — pilot then batch'
+@@ -4754,15 +4730,16 @@
+ 
+ [8wz7]
+ title = 'Spend Claude Max daily until expiry (~8-10 big judgment tasks/day)'
+-status = 'now'
++status = 'done'
+ domain = 'DEV'
+ project = '2026-winter-gyst'
+ notes = '''
+ Exemplar plots on kit v002, muse plot reviews, spectral synthesis, Tcl TOC, thesis review plan, master priority review, shed architecture review, portfolio narrative.
+ '''
+ created = 2610121440
+-updated = 2610121440
++updated = 2610141053
+ tags = ['task', 'ws-tok', 'tok1', 'tier-now']
++completed = 2610141053
+ 
+ [k24v]
+ title = 'Re-check Cursor pool usage; drop to grok-only if Other pool >85%'
+@@ -4808,3 +4785,290 @@
+ created = 2610121547
+ updated = 2610121743
+ tags = ['task', 'acct']
++
++[qost]
++title = 'Finalize #313 video edit (Padesky)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141120
++tags = ['task', 'tosu']
++
++[kv1v]
++title = 'Grade #314 video (Panasonic V-Log)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++notes = '''
++Or reach out to Liam for help.
++'''
++created = 2610141120
++updated = 2610141124
++tags = ['task', 'tosu']
++
++[3pcu]
++title = 'Edit #314 video with D2C intro'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141120
++tags = ['task', 'tosu']
++
++[q0v1]
++title = 'Edit #315 video with D2C intro'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141120
++tags = ['task', 'tosu']
++
++[jg0l]
++title = 'Edit #316 video with D2C intro'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141120
++tags = ['task', 'tosu']
++
++[ks4h]
++title = 'Edit #327 audio (Sanders)'
++status = 'today'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141122
++tags = ['task', 'tosu']
++
++[xol6]
++title = 'Edit #328 audio (Turner)'
++status = 'today'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141122
++tags = ['task', 'tosu']
++
++[bl6c]
++title = 'Edit #329 audio (Yeiser)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141120
++tags = ['task', 'tosu']
++
++[1b93]
++title = 'Edit #330 audio (Wright)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141121
++tags = ['task', 'tosu']
++
++[84if]
++title = 'Assemble show notes for #327 (Sanders)'
++status = 'today'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141122
++tags = ['task', 'tosu']
++
++[z7m5]
++title = 'Assemble show notes for #328 (Turner)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141120
++tags = ['task', 'tosu']
++
++[lyab]
++title = 'Assemble show notes for #329 (Yeiser)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141120
++tags = ['task', 'tosu']
++
++[kaes]
++title = 'Assemble show notes for #330 (Wright)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++created = 2610141120
++updated = 2610141121
++tags = ['task', 'tosu']
++
++[2ef1]
++title = 'CTP production meeting'
++status = 'sched'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++datetime = 'Thu Oct 15 26'
++time = '9:00a'
++created = 2610141120
++updated = 2610141120
++tags = ['task', 'tosu']
++
++[m18k]
++title = 'Grade #315 video (Panasonic V-Log)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++notes = '''
++Or reach out to Liam for help.
++'''
++created = 2610141124
++updated = 2610141124
++tags = ['task', 'tosu']
++
++[vbgk]
++title = 'Grade #316 video (Panasonic V-Log)'
++status = 'later'
++domain = 'CTP'
++project = 'CTP-OCT-PRE-SF'
++notes = '''
++Or reach out to Liam for help.
++'''
++created = 2610141124
++updated = 2610141124
++tags = ['task', 'tosu']
++
++[mn9k]
++title = 'Add an almanac show verb for single-task lookup by id'
++status = 'later'
++domain = 'almanac'
++notes = '''
++ls and filter have no id filter, so reading one task means listing everything. show <id> should print one task's fields, so all reads and writes can go through almanac.
++Split: ls/filter stay multi-result and field-based (criteria in, zero or more tasks out). show <id> is single-result and identity-based (the id names exactly one task, returns its full fields, no filter logic).
++Related: ls id=<id> currently returns empty with no error, because id is the table name, not a filterable field.
++'''
++created = 2610141134
++updated = 2610141137
++tags = ['task']
++
++[mhjw]
++title = 'Check in at Courtyard'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++datetime = 'Wed Oct 28 26'
++time = '4:00p'
++created = 2610141144
++updated = 2610141144
++tags = ['task']
++
++[791a]
++title = 'Leave for Phoebe at Chase Center'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++notes = '''
++Leave between 5:30p and 6:00p.
++'''
++datetime = 'Wed Oct 28 26'
++time = '5:30p'
++created = 2610141144
++updated = 2610141144
++tags = ['task']
++
++[vo9w]
++title = 'Phoebe at Chase Center (doors)'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++datetime = 'Wed Oct 28 26'
++time = '6:30p'
++created = 2610141144
++updated = 2610141144
++tags = ['task']
++
++[9fa8]
++title = 'Leave for Chicks at The Masonic'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++datetime = 'Fri Oct 30 26'
++time = '6:00p'
++created = 2610141144
++updated = 2610141144
++tags = ['task']
++
++[vvoh]
++title = 'Chicks at The Masonic (doors)'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++datetime = 'Fri Oct 30 26'
++time = '7:00p'
++created = 2610141144
++updated = 2610141144
++tags = ['task']
++
++[ysur]
++title = 'Check out of hotel'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++datetime = 'Sat Oct 31 26'
++time = '11:00a'
++created = 2610141144
++updated = 2610141144
++tags = ['task']
++
++[dg3m]
++title = 'Travel home'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++datetime = 'Sat Oct 31 26'
++created = 2610141144
++updated = 2610141144
++tags = ['task']
++
++[e2ls]
++title = 'Pick up TC'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++notes = '''
++M is off work at 2:30p. CCOE to the hotel takes 2.5 to 3.5 hr.
++'''
++datetime = 'Wed Oct 28 26'
++time = '2:00p'
++created = 2610141146
++updated = 2610141146
++tags = ['task']
++
++[yiyj]
++title = 'Drop off F'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++notes = '''
++Day before the trip (the 27th), to be confirmed. Sharon appt?
++'''
++datetime = 'Tue Oct 27 26'
++created = 2610141146
++updated = 2610141146
++tags = ['task']
++
++[ylnf]
++title = 'Look into birthday dinner places and book a Resy'
++status = 'sched'
++domain = 'TRVL'
++project = 'SF-OCT-2026'
++notes = '''
++Plans for afterwards are still open.
++'''
++datetime = 'Thu Oct 29 26'
++created = 2610141146
++updated = 2610141146
++tags = ['task']

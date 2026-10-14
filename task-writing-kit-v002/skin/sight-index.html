@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-sight-locked="1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex, nofollow">
+  <title>sight</title>
+  <link rel="stylesheet" href="assets/artifacts.css">
+  <link rel="stylesheet" href="assets/board.css">
+  <style>
+    /* Password gate — clear skin chrome; data stays in plane.enc */
+    #sight-gate {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--paper, #f4f1ea);
+      color: var(--ink, #1a1a1a);
+      padding: 1.5rem;
+    }
+    #sight-gate[hidden] { display: none !important; }
+    .sight-gate-card {
+      width: min(22rem, 100%);
+      padding: 1.25rem 1.35rem 1.4rem;
+      border: 1px solid color-mix(in oklch, var(--ink, #1a1a1a) 18%, transparent);
+      border-radius: 0.35rem;
+      background: color-mix(in oklch, var(--paper, #fff) 92%, white);
+      box-shadow: 0 1px 0 color-mix(in oklch, var(--ink, #000) 6%, transparent);
+    }
+    .sight-gate-card h1 {
+      font-family: "IBM Plex Serif", Georgia, serif;
+      font-size: 1.35rem; font-weight: 500; margin: 0 0 0.85rem;
+    }
+    #sight-gate-form { display: flex; flex-direction: column; gap: 0.65rem; }
+    #sight-gate-password {
+      font: inherit; padding: 0.55rem 0.65rem;
+      border: 1px solid color-mix(in oklch, var(--ink, #1a1a1a) 28%, transparent);
+      border-radius: 0.25rem; background: #fff;
+    }
+    #sight-gate-form button {
+      font: inherit; cursor: pointer; padding: 0.55rem 0.75rem;
+      border-radius: 0.25rem; border: 1px solid transparent;
+      background: var(--accent, #bf568b); color: #fff;
+    }
+    #sight-gate-status {
+      min-height: 1.2em; margin: 0.5rem 0 0; font-size: 0.85rem;
+    }
+    #sight-gate-status[data-err="1"] { color: #8b2e2e; }
+    body.sight-locked .board-shell { visibility: hidden; }
+  </style>
+</head>
+<body class="board-page sight-locked">
+  <div id="sight-gate" role="dialog" aria-modal="true" aria-labelledby="sight-gate-title">
+    <div class="sight-gate-card">
+      <h1 id="sight-gate-title">sight</h1>
+      <form id="sight-gate-form" autocomplete="off">
+        <label class="visually-hidden" for="sight-gate-password">Plane password</label>
+        <input type="password" id="sight-gate-password" name="password"
+          autocomplete="current-password" required placeholder="plane password"
+          aria-describedby="sight-gate-status">
+        <button type="submit">Unlock</button>
+      </form>
+      <p id="sight-gate-status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <div class="board-shell" aria-hidden="true">
+    <span id="board-status" class="visually-hidden" role="status" aria-live="polite"></span>
+    <span class="plane-badge" id="plane-badge" hidden data-source="fallback"></span>
+    <span class="plane-count-hidden" id="plane-count" hidden></span>
+
+    <div class="board-frame">
+    <nav class="mono-side" id="mono-side" aria-label="Planes"></nav>
+    <div class="board-column">
+    <div class="board-chrome filter-chrome">
+      <div class="chrome-tools">
+        <div class="chrome-lead" id="chrome-lead"></div>
+        <div class="hist-nav" role="group" aria-label="History">
+          <button type="button" class="hist-btn" id="hist-back" aria-label="Back" title="Back" disabled>←</button>
+          <button type="button" class="hist-btn" id="hist-fwd" aria-label="Forward" title="Forward" disabled>→</button>
+        </div>
+        <div class="chrome-sort" id="chrome-sort"></div>
+        <div class="board-search" id="board-search">
+          <label class="visually-hidden" for="board-search-input">Search sight</label>
+          <input type="search" id="board-search-input" name="q"
+            placeholder=""
+            autocomplete="off" spellcheck="false"
+            aria-label="Search the visible plane. T: tasks, F: parcels, / searches the full task plane.">
+          <span class="search-result-count" id="search-result-count" aria-live="polite"></span>
+          <button type="button" class="search-clear" id="board-search-clear"
+            aria-label="Clear search" title="Clear search">×</button>
+        </div>
+        <button type="button" class="search-meta-toggle" id="board-meta-toggle"
+          aria-pressed="false" aria-label="Toggle metadata pills" title="Toggle metadata pills">◈</button>
+
+        <div class="mono-menu-wrap" id="mono-menu-wrap">
+          <button type="button" class="mono-menu-btn" id="mono-menu-btn" aria-label="Planes" aria-haspopup="true" aria-expanded="false" aria-controls="mono-menu-drop" title="Planes"><span class="mono-menu-glyph" aria-hidden="true">☰</span></button>
+          <div class="mono-menu-drop" id="mono-menu-drop" hidden role="menu" aria-label="Planes">
+            <button type="button" class="mono-btn" role="menuitem" data-plane="tasks">tasks</button>
+            <button type="button" class="mono-btn" role="menuitem" data-plane="field">field</button>
+          </div>
+        </div>
+        <p class="chrome-hint" id="chrome-hint" hidden></p>
+      </div>
+    </div>
+
+    <div class="board-panes" id="board-panes">
+      <section class="plane-pane" id="pane-tasks" data-plane="tasks">
+        <button type="button" class="split-close" hidden aria-label="Close split" title="Full width">×</button>
+        <div class="plane-filters filter-chrome">
+          <div class="axis-rows">
+            <div class="axis-bar" id="axis-bar" role="tablist" aria-label="Filter axes"></div>
+          </div>
+          <div class="chip-band" id="chip-band" role="group" aria-label="Axis values"></div>
+          <div class="filter-summary" id="filter-summary" aria-live="polite"></div>
+        </div>
+        <div class="plane-list board-body" id="tasks-body" aria-live="polite"></div>
+      </section>
+      <section class="plane-pane" id="pane-field" data-plane="field" hidden>
+        <button type="button" class="split-close" hidden aria-label="Close split" title="Full width">×</button>
+        <div class="plane-list board-body" id="field-body" aria-live="polite"></div>
+      </section>
+    </div>
+    </div>
+    </div>
+
+    <footer class="board-footer">
+      <p>
+        sight · gated plane ·
+        <strong>agenda</strong> = tosu day plane ·
+        clear = unfiltered inventory.
+      </p>
+      <p class="page-links">
+        <a href="/">log</a>
+        · <a href="./plane.toml.txt">plane</a>
+        · <a href="/sight/clear.html">clear storage</a>
+      </p>
+    </footer>
+  </div>
+  <script src="unlock.js"></script>
+  <script src="assets/board.js" defer></script>
+</body>
+</html>

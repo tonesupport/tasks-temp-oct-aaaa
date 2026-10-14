@@ -1,0 +1,1487 @@
+/* board-page metrics ~125% — nearest whole rem/px steps, no global zoom */
+body.board-page {
+  --t-micro: 1rem;        /* was 0.8125 */
+  --t-label: 1.1875rem;   /* was 0.9375 */
+  --t-body: 1.375rem;     /* was 1.125 */
+  --t-subhead: 1.75rem;   /* was 1.375 */
+  --t-heading: 2.375rem;  /* was 1.875 */
+  --t-data: 1.1875rem;    /* was 0.9375 */
+  --step--1: 1.125rem;
+  --step-0: 1.3125rem;
+  --step-1: 1.625rem;
+  --step-2: 1.9375rem;
+  --step-3: 2.4375rem;
+  font-size: var(--t-body);
+}
+
+/* Board skin phase 1 — interactive layout addendum.
+   Shared materials/chips/pills/board-row live in artifacts.css (Plex + Harmonic).
+   This file only covers axis underline chrome, sticky phone chrome, list gaps,
+   and making specimen .chip classes work as buttons. */
+
+body.board-page {
+  background: var(--ground, #f9fbfb);
+  color: var(--ink, #0c161e);
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Page shell — NOT specimen .board (that class is a bordered demo frame). */
+.board-shell {
+  width: min(100%, 65rem); /* ~125% of 52rem */
+  margin-inline: auto;
+  padding: 0.95rem clamp(0.95rem, 3vw, 1.55rem) 3rem;
+}
+
+.board-header { display: none; }
+
+.board-header .page-mark {
+  margin-right: 0.25rem;
+}
+
+.board-meta {
+  font-size: var(--t-micro, 0.8125rem);
+  color: var(--muted, #627889);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+}
+
+.board-chrome {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--ground, #f9fbfb) 92%, transparent);
+  backdrop-filter: blur(8px);
+  /* equal block pad — asymmetric bottom was enlarging gap under last pill row */
+  padding-block: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem; /* uniform lane · axis · chips · summary */
+  overflow: visible;
+}
+
+/* One top bar — in flow, same place on every view. Not an overlay. */
+.chrome-tools {
+  position: static;
+  z-index: 21;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: none;
+  pointer-events: auto;
+}
+
+.chrome-tools .board-search,
+.chrome-tools .search-clear,
+.chrome-tools .search-meta-toggle,
+.chrome-tools .mono-menu-wrap,
+.chrome-tools .mono-menu-btn,
+.chrome-tools .mono-menu-drop,
+.chrome-tools input {
+  pointer-events: auto;
+}
+
+.chrome-tools .board-search {
+  width: 100%;
+  margin: 0;
+}
+
+.chrome-hint {
+  display: none !important;
+}
+
+
+/* Filters use the full row. Search lives in the top bar, not over the chips. */
+.lane-bar,
+.axis-bar {
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.lane-bar {
+  min-width: 0;
+}
+
+@media (max-width: 520px) {
+  /*
+   * Mobile type: titles ~15px; chrome/pills ~13px.
+   * Compact cards: status above ID; meta pills via body.meta-hidden (default on ≤520).
+   * Chrome rhythm: search → lane → axis → chips(if open) → list.
+   */
+  body.board-page {
+    --t-micro: 0.8125rem;
+    --t-label: 0.8125rem;
+    --t-body: 0.8125rem;
+    --t-subhead: 0.875rem;
+    --t-heading: 0.9375rem;
+    --t-data: 0.8125rem;
+    --step--1: 0.75rem;
+    --step-0: 0.8125rem;
+    --step-1: 0.875rem;
+    --step-2: 0.9375rem;
+    --step-3: 1rem;
+    font-size: var(--t-body);
+  }
+
+  body.board-page .board-chrome {
+    gap: 0.35rem;
+    padding-block: 0.35rem;
+  }
+  body.board-page .chrome-hint {
+    display: none !important;
+  }
+  body.board-page .chrome-tools {
+    position: static;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    pointer-events: auto;
+  }
+  body.board-page .lane-bar,
+  body.board-page .axis-bar,
+  body.board-page .chip-band {
+    padding: 0;
+    min-height: 0;
+    gap: 0.3rem;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  body.board-page .filter-summary {
+    padding: 0;
+    margin: 0;
+    gap: 0.3rem;
+    min-height: 0;
+    font-size: 13px;
+    align-items: center;
+  }
+  body.board-page .board-body {
+    margin-top: 0.35rem;
+  }
+
+  body.board-page .filter-chrome button.chip,
+  body.board-page button.chip,
+  body.board-page .chip,
+  body.board-page .filter-summary button.chip {
+    font-size: 13px;
+    line-height: 1.15;
+    min-height: 0;
+    height: auto;
+    padding: 0.08rem 0.4rem;
+    white-space: nowrap;
+  }
+  body.board-page .filter-chrome .axis-btn {
+    font-size: 13px; /* restored vs prior 12px down-nudge; match value chips */
+    line-height: 1.15;
+    min-height: 0;
+    height: auto;
+    padding: 0.08rem 0.4rem;
+    white-space: nowrap;
+  }
+
+  body.board-page .chip-band:empty::after {
+    display: none;
+  }
+
+  body.board-page .status-pill,
+  body.board-page .card-tags .status-pill {
+    font-size: 12px;
+    line-height: 1.15;
+    padding: 0.08rem 0.32rem;
+  }
+  body.board-page .card-corner .row-id,
+  body.board-page .card-corner .id-pill,
+  body.board-page .card-chip-row .row-id,
+  body.board-page .card-chip-row .id-pill {
+    font-size: 12px;
+    line-height: 1.15;
+    padding: 0.08rem 0.28rem;
+    margin-inline-start: 0;
+  }
+
+  body.board-page .chrome-hint,
+  body.board-page .board-search input[type="search"],
+  body.board-page .search-result-count,
+  body.board-page .board-meta,
+  body.board-page .card-notes,
+  body.board-page .board-footer,
+  body.board-page .empty-list,
+  body.board-page .board-search .search-clear {
+    font-size: 13px;
+  }
+  body.board-page .sight-timer-label {
+    font-size: 14px; /* was 10→12; next rung */
+  }
+
+  /* Compact card: title | status+ID corner; meta pills spatial row under title */
+  body.board-page .card-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto auto;
+    column-gap: 0.45rem;
+    row-gap: 0.2rem;
+    align-items: start;
+  }
+  body.board-page .card-main .row-title,
+  body.board-page .card-main .row-title.heading {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 0.9375rem;
+    line-height: 1.25;
+    margin: 0;
+    padding-right: 0;
+  }
+  body.board-page .card-main .card-corner {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* right-edge align status + ID */
+    text-align: right;
+    justify-content: flex-start;
+    gap: 0.15rem;
+    margin: 0;
+  }
+  /* Meta pills: full-width row under title — NOT in status/ID column */
+  body.board-page .card-main .card-chip-row {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.25rem;
+    margin: 0;
+  }
+  body.board-page .card-chip-row .card-tags {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  /* meta pills: visibility owned by body.meta-hidden (JS), not viewport-only */
+  body.board-page .card-main .sight-timer {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin: 0; /* row-gap owns spacing; no extra bottom inset */
+    padding: 0;
+  }
+  body.board-page .card-main .card-notes {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    /* row-gap 0.2 + margin-top 0.2 = 0.4 = card pad-block bottom */
+    margin: 0.2rem 0 0;
+  }
+  /* Symmetric card shell: equal padding-block; no leftover last-child margins */
+  body.board-page .card-list .board-row {
+    padding: 0.4rem 0.5rem;
+  }
+  body.board-page .card-main .row-title,
+  body.board-page .card-main .row-title.heading,
+  body.board-page .card-main .card-corner,
+  body.board-page .card-main .card-chip-row,
+  body.board-page .card-main .sight-timer,
+  body.board-page .card-main .card-notes {
+    margin-bottom: 0;
+  }
+  body.board-page .card-main > :last-child {
+    margin-bottom: 0;
+  }
+
+  /* Include/exclude marks removed — color/style alone (no +/-/¬/! prefixes) */
+
+  /* No outline rings on filter pills (touch) — avoid layout nudge */
+  body.board-page .axis-btn:hover,
+  body.board-page .axis-btn:focus,
+  body.board-page .axis-btn:focus-visible,
+  body.board-page button.chip:hover,
+  body.board-page button.chip:focus,
+  body.board-page button.chip:focus-visible {
+    outline: none;
+    outline-offset: 0;
+  }
+}
+
+.chip-band[hidden],
+.chip-band[data-empty="1"] {
+  display: none !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+
+/* Axis bar — underline = active filter axis (OCR grammar) */
+.axis-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.15rem;
+  /* Desktop: overflow visible — overflow-x:auto with sticky chrome clips pill bottoms after scroll-back */
+  overflow: visible;
+  touch-action: manipulation;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.axis-btn {
+  /* pill shape comes from .filter-chrome .axis-btn in artifacts.css */
+  appearance: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Axis/filter titles — restored to artifacts 16px (undo 16→14 down-nudge) */
+body.board-page .filter-chrome .axis-btn {
+  font-size: 16px;
+}
+
+.axis-btn:hover,
+.axis-btn:focus,
+.axis-btn:focus-visible {
+  color: var(--ink, #0c161e);
+  outline: none;
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+.axis-btn[aria-selected="true"] {
+  color: var(--ink, #0c161e);
+}
+
+/* Chip band — horizontal scroll on phone; reuses .chip from artifacts.css */
+.chip-band {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0;
+  overflow: visible;
+  min-height: 0;
+  touch-action: manipulation;
+}
+
+.chip-band:empty::after {
+  content: "No values on this axis";
+  color: var(--muted, #627889);
+  font-size: var(--t-micro, 0.8125rem);
+  padding: 0.5rem 0.15rem;
+}
+
+button.chip {
+  appearance: none;
+  font: inherit;
+  cursor: pointer;
+  flex: 0 0 auto;
+  max-width: 100%;
+  min-height: 0;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+button.chip:hover,
+button.chip:focus,
+button.chip:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+/* Override artifacts.css azure rings on filter chrome — selection via pill fill/border only */
+body.board-page .filter-chrome .axis-btn:hover,
+body.board-page .filter-chrome .axis-btn:focus,
+body.board-page .filter-chrome .axis-btn:focus-visible,
+body.board-page .filter-chrome button.chip:hover,
+body.board-page .filter-chrome button.chip:focus,
+body.board-page .filter-chrome button.chip:focus-visible,
+body.board-page button.chip:hover,
+body.board-page button.chip:focus,
+body.board-page button.chip:focus-visible {
+  outline: none;
+  outline-offset: 0;
+}
+
+button.chip.flash-exclude {
+  border-color: var(--shed-danger, #bf5656);
+  color: var(--shed-danger, #bf5656);
+}
+
+.filter-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  align-items: center;
+  font-size: var(--t-micro, 0.75rem);
+  color: var(--muted, #627889);
+  /* padding 0 — .board-chrome gap owns spacing between lane / axis / chips / summary */
+  padding: 0;
+  min-height: 0;
+}
+
+.filter-summary:empty {
+  display: none;
+}
+
+.filter-summary button.chip {
+  min-height: 0;
+  padding: 0.1rem 0.4rem; /* denser; font scale unchanged */
+}
+
+.board-body {
+  margin-top: 0.25rem;
+}
+
+
+.card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  border-radius: var(--radius, 8px);
+  overflow: hidden;
+  background: var(--ground, #f9fbfb);
+}
+
+/* Extend specimen .board-row for multi-line card content */
+.card-list .board-row {
+  /* left strip = status (same hue as status pill); overdue → accent */
+  --card-pad-block: 0.5rem;
+  align-items: start;
+  border-left: 4px solid var(--rule, #cfd6dc);
+  /* Prefer padding on shell; equal block inset (top = reference) */
+  padding-block: var(--card-pad-block);
+  padding-inline: 0.65rem;
+  box-sizing: border-box;
+}
+
+.card-list .board-row[data-status="urgent"] { border-left-color: var(--accent, #bf568b); border-left-width: 6px; }
+.card-list .board-row[data-status="now"],
+.card-list .board-row[data-status="today"] { border-left-color: var(--green-700, #40632e); }
+.card-list .board-row[data-status="sched"] { border-left-color: var(--azure-700, #275077); }
+.card-list .board-row[data-status="deferred"],
+.card-list .board-row[data-status="later"] { border-left-color: var(--amber-500, #b77b20); }
+.card-list .board-row[data-status="done"] { border-left-color: var(--muted, #627889); }
+.card-list .board-row[data-overdue="true"] { border-left-color: var(--accent, #bf568b); border-left-width: 6px; }
+
+.status-pill--azure {
+  background: color-mix(in srgb, var(--azure-700, #275077) 18%, transparent);
+  color: var(--azure-700, #275077);
+  border: var(--s-hairline, 1px) solid color-mix(in srgb, var(--azure-700, #275077) 45%, transparent);
+}
+
+.status-pill--urgent::before {
+  content: "▸";
+  margin-right: 0.2em;
+  font-weight: 700;
+}
+
+.card-main { min-width: 0; }
+
+.card-main .row-title {
+  display: block;
+  /* serif Regular 400 + size from artifacts.css shared card layout */
+  margin: 0;
+}
+
+/* Kill trailing margin under last content (often ID / chip-row / notes) */
+.card-main > :last-child {
+  margin-bottom: 0;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+}
+
+.tag-meta {
+  display: inline-flex;
+  font-size: var(--t-micro, 0.6875rem);
+  font-weight: 500;
+  padding: 0.18rem 0.4rem;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--panel, #e9ecef);
+  color: var(--ink-soft, #405769);
+  border: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.tag-meta {
+  appearance: none;
+  font: inherit;
+  font-size: var(--t-micro, 0.6875rem);
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+.tag-meta--mark {
+  background: color-mix(in srgb, var(--shed-amber, #bf8b56) 18%, var(--panel, #e9ecef));
+  border-color: color-mix(in srgb, var(--shed-amber, #bf8b56) 45%, var(--rule, #cfd6dc));
+}
+
+.tag-meta--blockers {
+  background: color-mix(in srgb, #bf5656 12%, var(--panel, #e9ecef));
+  border-color: color-mix(in srgb, #bf5656 40%, var(--rule, #cfd6dc));
+  color: #7a3030;
+}
+
+.card-notes {
+  /* Match gap above notes to card bottom pad (meta→notes == notes→bottom) */
+  margin: var(--card-pad-block, 0.5rem) 0 0;
+  font-size: var(--t-micro, 0.8125rem);
+  line-height: 1.45;
+  color: var(--muted, #627889);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stub-panel { display: none; } /* parked — no instructional stub chrome */
+
+
+
+.board-footer {
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  font-size: var(--t-micro, 0.75rem);
+  color: var(--muted, #627889);
+}
+
+.plane-badge { display: none !important; }
+
+
+.empty-list {
+  padding: 1.25rem 0.75rem;
+  text-align: center;
+  color: var(--muted, #627889);
+  font-size: var(--t-label, 0.875rem);
+  border: var(--s-regular, 1px) dashed var(--rule, #cfd6dc);
+  border-radius: var(--radius, 8px);
+}
+
+@media (max-width: 480px) {
+  .board-shell { padding-inline: 0.65rem; }
+  .axis-btn { padding-inline: 0.45rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.chip { transition: none; }
+}
+
+
+/* Agenda preset chip (caty) */
+/* Toggle off = muted grey (done/blocks / tosu inventory) — not bright include */
+.chip--off {
+  background: var(--panel, #e9ecef);
+  color: var(--muted, #627889);
+  border-color: var(--rule, #cfd6dc);
+  border-style: solid;
+}
+.chip--off::before { content: none; display: none; }
+.chip--toggle.chip--off {
+  color: var(--muted, #627889);
+  background: var(--panel, #e9ecef);
+}
+
+.chip--agenda {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.chip--agenda.chip--include {
+  background: color-mix(in srgb, var(--azure-700, #275077) 16%, var(--panel, #e9ecef));
+  border-color: color-mix(in srgb, var(--azure-700, #275077) 50%, var(--rule, #cfd6dc));
+  color: var(--azure-700, #275077);
+}
+
+.tag-meta--overdue {
+  background: color-mix(in srgb, var(--accent, #bf568b) 14%, var(--panel, #e9ecef));
+  border-color: color-mix(in srgb, var(--accent, #bf568b) 45%, var(--rule, #cfd6dc));
+  color: #7a3058;
+}
+
+.tag-meta--tosu {
+  background: color-mix(in srgb, var(--violet-500, #AE6DB2) 14%, var(--panel, #e9ecef));
+  border-color: color-mix(in srgb, var(--violet-700, #714574) 40%, var(--rule, #cfd6dc));
+  color: var(--violet-700, #714574);
+}
+
+body.agenda-preset .chip--agenda.chip--include {
+  /* selected state already via chip--include */
+}
+
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Full tosu notes — never clamp/truncate in UI */
+.card-notes--tosu {
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
+  white-space: pre-wrap;
+}
+
+
+/* Sight timer phase track — 260930-sight-timer-design §5 (UD lock A) */
+.sight-timer {
+  --timer-hue: var(--shed-azure, #568bbf);
+  --timer-past: color-mix(in srgb, var(--timer-hue) 55%, var(--ink, #0c161e) 12%);
+  --timer-future: color-mix(in srgb, var(--timer-hue) 22%, var(--panel, #e9ecef));
+  display: block;
+  width: 100%;
+  margin: 0.45rem 0 0; /* top gap only; bottom inset from card padding */
+  padding: 0 0.1rem;
+  box-sizing: border-box;
+  overflow-x: hidden; /* belt with JS label clamp */
+}
+
+.sight-timer--azure { --timer-hue: #568bbf; }
+.sight-timer--amber { --timer-hue: #bf8b56; }
+.sight-timer--green { --timer-hue: #56bf8b; }
+.sight-timer--violet { --timer-hue: #8b56bf; }
+.sight-timer--fuchsia { --timer-hue: #bf568b; }
+
+.sight-timer-track {
+  position: relative;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--timer-future);
+  border: var(--s-hairline, 1px) solid color-mix(in srgb, var(--timer-hue) 35%, var(--rule, #cfd6dc));
+  overflow: visible;
+}
+
+.sight-timer-past {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: var(--timer-past); /* ~500 tier — darker than future */
+  border-radius: 999px 0 0 999px;
+  pointer-events: none;
+  transition: width 0.6s linear;
+}
+
+.sight-timer-dot {
+  position: absolute;
+  top: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--ground, #f9fbfb);
+  border: 2px solid var(--timer-hue);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.sight-timer-dot--start { left: 0; }
+.sight-timer-dot--end { left: 100%; }
+
+.sight-timer-mark {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--timer-hue);
+  border: 2px solid var(--ground, #f9fbfb);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--timer-hue) 55%, transparent);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  transition: left 0.6s linear;
+  pointer-events: none;
+}
+
+.sight-timer--amber .sight-timer-mark {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-width: 2.5px;
+}
+
+.sight-timer--past-end .sight-timer-track {
+  border-style: dashed;
+}
+
+.sight-timer--past-end .sight-timer-mark {
+  /* sit just past end-dot */
+  margin-left: 0.35rem;
+}
+
+.sight-timer-label {
+  position: relative;
+  display: inline-block;
+  margin-top: 0.2rem;
+  transform: translateX(-50%);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 14px; /* was 10→12; next rung */
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--timer-hue) 75%, var(--ink, #0c161e));
+  white-space: nowrap;
+  max-width: 100%;
+  transition: left 0.6s linear;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sight-timer-past,
+  .sight-timer-mark,
+  .sight-timer-label {
+    transition: none;
+  }
+}
+
+.tag-meta--domain {
+  background: var(--panel, #e9ecef);
+  color: var(--ink-soft, #405769);
+  border-color: var(--rule, #cfd6dc);
+}
+
+.tag-meta--project {
+  background: color-mix(in srgb, var(--azure-500, #517eab) 18%, var(--panel, #e9ecef));
+  color: var(--azure-700, #275077);
+  border-color: color-mix(in srgb, var(--azure-700, #275077) 45%, var(--rule, #cfd6dc));
+  font-weight: 600;
+}
+
+/* Field tags + plot parcel count: muted labels, not link chips. Tags are a
+   row's own labels, never destinations; the plot index shows a count, never
+   member parcel ids. Typed edges ref/up/cite are the only id links
+   (.tag-link.edge-link). Identity (exactly one plot id) sits in .card-corner. */
+.tag-meta--label {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted, #627889);
+  font-weight: 400;
+  padding: 0.1rem 0.28rem;
+  max-width: 14rem;
+}
+.tag-link.edge-link {
+  font-variant-numeric: tabular-nums;
+}
+.plot-card .card-corner .plot-id {
+  cursor: default;
+  pointer-events: none; /* identity only — card click opens the area */
+}
+
+
+/* Metadata pills visibility — application toggle (both viewports).
+   Cross-link pills (.tag-link) stay; they share the tag-meta box.
+   Plot tags, parent plot id, and the parcel count are .tag-meta
+   (not .tag-link), so metadata off hides them. No extra row. */
+body.meta-hidden .card-tags .tag-meta:not(.tag-link),
+body.meta-hidden .card-tags .blocker-link {
+  display: none;
+}
+/* Plot and parcel ids are metadata. Task ids stay in the corner. */
+body.meta-hidden .parcel-card .card-corner .row-id,
+body.meta-hidden .parcel-card .card-corner .id-pill,
+body.meta-hidden .plot-card .card-corner .plot-id,
+body.meta-hidden .plot-card .plot-id {
+  display: none;
+}
+/* Entire meta row collapses when hidden (status/ID live in .card-corner).
+   Spec must beat body.board-page .card-main .card-chip-row { display:flex }.
+   A row that still has a link pill stays. */
+body.meta-hidden .card-chip-row,
+body.board-page.meta-hidden .card-main .card-chip-row {
+  display: none;
+}
+body.board-page.meta-hidden .card-main .card-chip-row:has(.tag-link) {
+  display: flex;
+}
+
+/* Desktop+shared card grid: title | corner; meta row; timer; notes */
+body.board-page .card-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto auto;
+  column-gap: 0.55rem;
+  row-gap: 0.3rem;
+  align-items: start;
+  position: relative;
+}
+body.board-page .card-main .row-title,
+body.board-page .card-main .row-title.heading {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+}
+body.board-page .card-corner {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* right-edge align status + ID */
+  text-align: right;
+  justify-content: flex-start;
+  gap: 0.2rem;
+  margin: 0;
+  flex: 0 0 auto;
+}
+body.board-page .card-corner .status-pill {
+  margin: 0;
+}
+body.board-page .card-corner .row-id,
+body.board-page .card-corner .id-pill {
+  margin-inline-start: 0;
+  align-self: flex-end;
+}
+body.board-page .card-main .card-chip-row {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-items: center;
+  margin: 0;
+}
+body.board-page .card-main .sight-timer {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin: 0;
+}
+body.board-page .card-main .card-notes {
+  grid-column: 1 / -1;
+  grid-row: 4;
+}
+
+
+/* Peer planes share the task column. No nested field sheet. */
+body.plane-field .lane-bar,
+body.plane-field .axis-bar,
+body.plane-field .chip-band,
+body.plane-field .filter-summary {
+  display: none;
+}
+
+.plane-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.plane-switch {
+  display: flex;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.plane-btn {
+  flex: 1 1 0;
+  appearance: none;
+  border: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  background: var(--ground, #f9fbfb);
+  color: var(--muted, #627889);
+  font: inherit;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  line-height: 1.2;
+  min-height: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.plane-btn[aria-selected="true"] {
+  color: var(--ink, #0c161e);
+  border-color: var(--azure-700, #275077);
+  background: var(--azure-200, #d5e4f2);
+}
+
+.plane-btn:hover,
+.plane-btn:focus-visible {
+  color: var(--ink, #0c161e);
+}
+
+.plane-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-height: 0;
+}
+
+.plane-nav:empty {
+  display: none;
+}
+
+.plane-nav-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  font: inherit;
+  font-size: var(--t-micro, 0.6875rem);
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 0.18rem 0.4rem;
+  border-radius: var(--radius-sm, 4px);
+  border: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  background: var(--panel, #e9ecef);
+  color: var(--ink-soft, #405769);
+  cursor: pointer;
+  margin: 0;
+}
+
+.plot-card {
+  cursor: pointer;
+}
+
+/* Plot and parcel cards carry no colored side strip (status strips are for
+   tasks only). Grain stays visible through the corner pill. */
+.card-list .board-row.plot-card,
+.card-list .board-row.parcel-card {
+  border-left: 0 !important;
+  border-right: 0 !important;
+  padding-left: 0.65rem;
+}
+
+.parcel-body.card-notes {
+  -webkit-line-clamp: 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* Chrome addendum: history, sidebar, split, claim line, plot stamps. */
+
+body.board-page .chrome-tools {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: none;
+  gap: 0.35rem;
+}
+body.board-page .chrome-tools .board-search { flex: 1 1 auto; width: auto; min-width: 0; margin: 0; }
+body.board-page .chrome-tools .hist-btn,
+body.board-page .hist-nav { pointer-events: auto; }
+
+.hist-nav { display: flex; align-items: center; gap: 0.05rem; }
+.hist-btn {
+  appearance: none; border: none; background: transparent;
+  color: var(--muted, #627889);
+  font: inherit; font-size: var(--t-micro, 1rem); line-height: 1;
+  padding: 0.15rem 0.2rem; margin: 0; cursor: pointer;
+}
+.hist-btn:disabled { opacity: 0.35; cursor: default; }
+.hist-btn:hover:not(:disabled),
+.hist-btn:focus-visible:not(:disabled) { color: var(--ink, #0c161e); outline: none; }
+
+.axis-rows { display: flex; flex-direction: column; gap: 0.45rem; min-width: 0; }
+body.board-page .plane-filters .axis-bar {
+  padding-right: 0;
+  flex-wrap: wrap;
+}
+#axis-bar-global,
+.axis-bar--global { display: none !important; }
+body.board-page.is-split .plane-filters .axis-bar,
+body.board-page.plane-field .plane-filters .axis-bar { padding-right: 0; }
+
+body.board-page .board-chrome,
+body.board-page.is-split .board-chrome,
+body.board-page.plane-field .board-chrome {
+  height: auto;
+  min-height: 0;
+  padding-block: 0.35rem;
+  gap: 0;
+  overflow: visible;
+}
+
+.board-frame { display: flex; align-items: flex-start; gap: 0.35rem; min-width: 0; }
+.board-column { flex: 1 1 auto; min-width: 0; position: relative; }
+.mono-side {
+  flex: 0 0 auto; display: flex; flex-direction: column; gap: 0.28rem;
+  position: sticky; top: 0.45rem; z-index: 21; padding-top: 0.35rem;
+}
+.mono-side:empty { display: none; }
+.mono-btn {
+  appearance: none; font: inherit;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--t-micro, 0.8125rem); font-weight: 500;
+  letter-spacing: 0.03em; line-height: 1.2;
+  padding: 0.18rem 0.45rem; border-radius: 999px;
+  border: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  background: transparent; color: var(--muted, #627889); cursor: pointer;
+}
+.mono-btn[aria-selected="true"] {
+  color: var(--ink, #0c161e);
+  border-color: color-mix(in srgb, var(--ink, #0c161e) 28%, var(--rule, #cfd6dc));
+  background: color-mix(in srgb, var(--panel, #e9ecef) 80%, transparent);
+}
+.mono-btn.is-companion { border-style: dashed; }
+.mono-btn--sub { font-size: 0.75rem; border-style: dashed; }
+.mono-btn:hover, .mono-btn:focus-visible { color: var(--ink, #0c161e); outline: none; }
+
+body.board-page .filter-chrome .axis-btn.axis-btn--word { text-transform: none; letter-spacing: 0.01em; }
+.axis-btn[data-state="include"] {
+  background: color-mix(in srgb, var(--azure-700, #275077) 16%, var(--panel, #e9ecef));
+  border-color: color-mix(in srgb, var(--azure-700, #275077) 50%, var(--rule, #cfd6dc));
+  color: var(--azure-700, #275077);
+}
+.axis-btn[data-state="exclude"] {
+  background: color-mix(in srgb, var(--accent, #bf568b) 12%, var(--panel, #e9ecef));
+  border-color: color-mix(in srgb, var(--accent, #bf568b) 45%, var(--rule, #cfd6dc));
+  color: #7a3058;
+}
+
+.plane-pane { position: relative; min-width: 0; }
+.plane-pane[hidden] { display: none !important; }
+.plane-filters { display: flex; flex-direction: column; gap: 0.45rem; }
+.split-close {
+  position: absolute; top: 0.1rem; right: 0.15rem; z-index: 4;
+  appearance: none; border: none; background: transparent;
+  color: var(--muted, #627889); font: inherit; font-size: 1rem;
+  line-height: 1; cursor: pointer; padding: 0.1rem 0.35rem;
+}
+.split-close[hidden] { display: none !important; }
+.board-panes.is-split, .plane-pane, .field-pane { transition: none; }
+@media (min-width: 521px) {
+  .board-panes.is-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.75rem; align-items: start;
+  }
+}
+
+.claim-line { display: flex; flex-direction: column; gap: 0.12rem; min-width: 0; }
+body.board-page .card-main .claim-line { grid-column: 1 / -1; grid-row: 2; margin: 0; }
+body.board-page .card-main .card-chip-row { grid-row: 3; }
+body.board-page .card-main .sight-timer { grid-row: 4; }
+body.board-page .card-main .card-notes:not(.plot-hint) { grid-row: 5; }
+body.board-page .plot-card .plot-hint { grid-column: 1 / -1; grid-row: 2; margin: 0; max-width: none; width: 100%; }
+body.board-page .plot-card .card-chip-row { grid-row: 3; }
+button.claim-line-link {
+  appearance: none; background: none; border: none; padding: 0; margin: 0;
+  text-align: left; font: inherit; font-size: var(--t-micro, 0.8125rem);
+  font-weight: 400; line-height: 1.35; color: var(--muted, #627889);
+  cursor: pointer; max-width: 100%;
+}
+button.claim-line-link:hover, button.claim-line-link:focus-visible {
+  color: var(--ink, #0c161e); text-decoration: underline; outline: none;
+}
+
+.plot-stamp {
+  display: inline-block; font-size: var(--t-micro, 0.75rem);
+  color: var(--muted, #627889); line-height: 1.15;
+}
+.plot-stamp--empty {
+  box-sizing: border-box; min-width: 4.25rem; height: 1.15rem;
+  border: 1px dashed var(--rule, #cfd6dc); border-radius: 999px;
+}
+.plot-sort { display: flex; justify-content: flex-end; margin: 0 0 0.25rem; }
+.plot-sort-btn {
+  appearance: none; font: inherit; font-size: var(--t-micro, 0.75rem);
+  color: var(--muted, #627889); background: transparent;
+  border: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  border-radius: 999px; padding: 0.08rem 0.45rem; cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  /* Slim monolith row — not a left gutter, not display:none. */
+  .board-frame {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.28rem;
+  }
+  .mono-side {
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    gap: 0.25rem;
+    z-index: 22;
+  }
+  .mono-btn {
+    font-size: 13px;
+    line-height: 1.15;
+    padding: 0.08rem 0.45rem;
+  }
+  body.board-page .board-chrome { height: auto; padding-block: 0.35rem; }
+  body.board-page .chrome-tools { position: static; width: 100%; max-width: none; }
+  body.board-page .chrome-tools .board-search { flex: 1 1 auto; width: auto; min-width: 0; }
+  body.board-page .plane-filters .axis-bar {
+    padding-right: 0;
+    flex-wrap: nowrap;
+  }
+  .board-panes.is-split { display: flex; flex-direction: column; gap: 0.75rem; }
+  /* Field plane must paint and page-scroll; task filters stay inside #pane-tasks. */
+  .board-column,
+  .board-panes,
+  #field-body {
+    overflow: visible;
+    height: auto;
+    max-height: none;
+  }
+  #pane-field:not([hidden]) {
+    display: block !important;
+    overflow: visible;
+    height: auto;
+    max-height: none;
+  }
+  #pane-field .card-list,
+  #pane-field .parcel-card,
+  #pane-field .plot-card,
+  #pane-field .card-main {
+    overflow: visible;
+    max-height: none;
+    height: auto;
+  }
+  body.board-page .plot-card .card-main,
+  body.board-page .parcel-card .card-main {
+    grid-template-rows: none;
+  }
+  body.board-page .parcel-card .parcel-body,
+  body.board-page .plot-card .plot-hint {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+    max-height: none;
+  }
+}
+
+/* Spoken-route copy, plane menu, parcel ink, mobile axis abbreviations. */
+.mono-menu-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  pointer-events: auto;
+}
+.mono-menu-btn {
+  appearance: none;
+  width: 1.9rem;
+  height: 1.65rem;
+  margin: 0;
+  padding: 0;
+  border: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink, #0c161e);
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.mono-menu-bar {
+  display: block;
+  width: 0.85rem;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+}
+.mono-menu-btn:hover,
+.mono-menu-btn:focus-visible,
+.mono-menu-btn[aria-expanded="true"] {
+  color: var(--ink, #0c161e);
+  border-color: color-mix(in srgb, var(--ink, #0c161e) 28%, var(--rule, #cfd6dc));
+  outline: none;
+}
+.mono-menu-drop {
+  position: absolute;
+  top: calc(100% + 0.28rem);
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.28rem;
+  min-width: 5.5rem;
+  padding: 0.28rem;
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--ground, #f9fbfb) 94%, white);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink, #000) 8%, transparent);
+}
+.mono-menu-drop[hidden] { display: none !important; }
+.mono-menu-drop .mono-btn { text-align: center; }
+
+.plot-route-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 0.35rem;
+}
+
+body.board-page .parcel-card .parcel-body {
+  color: var(--ink, #0c161e);
+}
+
+@media (max-width: 520px) {
+  .mono-menu-wrap { display: inline-flex !important; }
+  body.board-page .chrome-tools .mono-menu-wrap { flex: 0 0 auto; }
+  body.board-page .filter-chrome .axis-bar .axis-btn {
+    /* Same metrics as value pills. Abbreviations, not shrink-to-fit. */
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+    font-size: 13px;
+    line-height: 1.15;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    padding: 0.08rem 0.4rem;
+    min-height: 0;
+    height: auto;
+    transform: none;
+  }
+  body.board-page .plane-filters .axis-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}
+
+
+/* Uniform top-bar controls. Search height matches filter pills. */
+body.board-page {
+  --chrome-ctl-h: calc(16px * 1.2 + 0.5rem + 2px);
+}
+.mono-side { display: none !important; }
+.chrome-lead,
+.chrome-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+}
+.chrome-lead:empty,
+.chrome-sort:empty { display: none; }
+
+body.board-page .chrome-tools .hist-btn,
+body.board-page .chrome-tools .chrome-pill,
+body.board-page .chrome-tools > .search-meta-toggle,
+body.board-page .chrome-tools .mono-menu-btn,
+body.board-page .chrome-tools .board-search input[type="search"] {
+  height: var(--chrome-ctl-h);
+  min-height: var(--chrome-ctl-h);
+  box-sizing: border-box;
+}
+body.board-page .chrome-tools .hist-btn,
+body.board-page .chrome-tools .chrome-pill,
+body.board-page .chrome-tools > .search-meta-toggle,
+body.board-page .chrome-tools .mono-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 0;
+  margin: 0;
+  line-height: 1;
+}
+body.board-page .chrome-pill {
+  appearance: none;
+  font: inherit;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--muted, #627889);
+  background: transparent;
+  border: var(--s-hairline, 1px) solid var(--rule, #cfd6dc);
+  border-radius: 999px;
+  padding-inline: 0.55rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+body.board-page .chrome-pill:hover,
+body.board-page .chrome-pill:focus-visible {
+  color: var(--ink, #0c161e);
+  outline: none;
+}
+body.board-page .hist-btn {
+  border: none;
+  background: transparent;
+  padding-inline: 0.35rem;
+  font-size: 16px;
+}
+body.board-page .chrome-tools > .search-meta-toggle {
+  position: static;
+  transform: none;
+  right: auto;
+  top: auto;
+  flex: 0 0 auto;
+  width: 1.9rem;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  font-size: 1.05rem;
+  color: var(--muted, #627889);
+}
+body.board-page .chrome-tools > .search-meta-toggle:hover,
+body.board-page .chrome-tools > .search-meta-toggle:focus-visible,
+body.board-page .chrome-tools > .search-meta-toggle.is-active,
+body.board-page .chrome-tools > .search-meta-toggle[aria-pressed="true"] {
+  outline: none;
+  color: var(--ink, #0c161e);
+}
+body.board-page .chrome-tools > .search-meta-toggle[aria-pressed="true"] {
+  color: var(--azure-700, #275077);
+}
+body.board-page .mono-menu-btn {
+  width: 1.9rem;
+  min-width: 1.9rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-size: 1.25rem;
+  padding: 0;
+  gap: 0;
+}
+body.board-page .mono-menu-btn:hover,
+body.board-page .mono-menu-btn:focus-visible,
+body.board-page .mono-menu-btn[aria-expanded="true"] {
+  border: none;
+  outline: none;
+  color: var(--ink, #0c161e);
+}
+.mono-menu-bar { display: none; }
+
+/* ☰ ink sits low in the em box versus the search field and the metadata diamond.
+   Shift the glyph only — the button box (hit target) stays the row height. */
+body.board-page .mono-menu-btn .mono-menu-glyph {
+  display: block;
+  line-height: 1;
+  transform: translateY(-0.12em);
+  pointer-events: none;
+}
+body.board-page .chrome-tools .mono-menu-wrap {
+  height: var(--chrome-ctl-h);
+  align-items: center;
+}
+body.board-page .board-search input[type="search"] {
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 1.7rem;
+}
+body.board-page .board-search.has-result-count input[type="search"] {
+  padding-right: 3.15rem;
+}
+body.board-page .board-search .search-clear {
+  right: 0.2rem;
+}
+body.board-page .board-search .search-result-count {
+  right: 1.55rem;
+}
+body.board-page .card-list .board-row {
+  scroll-margin-top: calc(var(--chrome-ctl-h) + 0.9rem);
+}
+
+/* Parcel claim shares the top edge of the parcel tag. Body uses the card measure. */
+body.board-page .parcel-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin: 0;
+  min-width: 0;
+}
+body.board-page .parcel-head .parcel-claim,
+body.board-page .parcel-card .parcel-claim {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  align-self: flex-start;
+  line-height: 1.15;
+}
+body.board-page .parcel-head .card-corner {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0;
+  grid-column: auto;
+  grid-row: auto;
+}
+body.board-page .parcel-card .parcel-body,
+body.board-page .parcel-card .parcel-body.card-notes,
+body.board-page .parcel-card .parcel-body.card-notes--tosu {
+  max-width: none;
+  width: 100%;
+  color: var(--ink, #0c161e);
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+@media (max-width: 520px) {
+  body.board-page {
+    --chrome-ctl-h: calc(13px * 1.15 + 0.16rem + 2px);
+  }
+  body.board-page .chrome-tools {
+    position: static;
+    width: 100%;
+    max-width: none;
+    flex-wrap: nowrap;
+  }
+  body.board-page .board-chrome,
+  body.board-page.is-split .board-chrome,
+  body.board-page.plane-field .board-chrome {
+    height: auto;
+    padding-block: 0.35rem;
+  }
+  body.board-page .chrome-pill,
+  body.board-page .hist-btn {
+    font-size: 13px;
+    padding-inline: 0.4rem;
+  }
+  body.board-page .filter-chrome .axis-bar .axis-btn,
+  body.board-page .filter-chrome button.chip,
+  body.board-page button.chip {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+    font-size: 13px;
+    line-height: 1.15;
+    font-weight: 500;
+    letter-spacing: 0;
+    height: var(--chrome-ctl-h);
+    min-height: var(--chrome-ctl-h);
+    padding: 0 0.4rem;
+    transform: none;
+  }
+  body.board-page .filter-chrome .axis-bar .axis-btn {
+    text-transform: none;
+  }
+  .mono-side { display: none !important; }
+}
