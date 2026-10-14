@@ -9,7 +9,9 @@ A kit for proposing new tasks and task changes as a patch against a frozen copy 
 
 ## Layout
 - `snapshot/tasks.toml`: the frozen base. `snapshot/SHA256` holds its hash.
-- `tools/scripts/almanac.tcl`, plus `cli.tcl`, `tama.tcl`, `tools/lib/tosu/tama.tcl`, and `tools/deps/tcl` (Tcl 9.0.4 zipkit, linux-x64).
+- `tools/scripts/almanac.tcl`: the script you edit. It loads `cli.tcl`, `tama.tcl` and `tools/lib/tosu/tama.tcl` from beside it and reads the preview assets from `skin/`.
+- `pack-almanac.tcl`: builds `dist/almanac.tcl`, the same script as ONE file (helpers inlined, assets and fonts embedded, pure ASCII). `dist/` is generated; edit the sources.
+- `tools/deps/tcl`: Tcl 9.0.4 zipkit, linux-x64.
 - `check.py`: the gate (Python). Run it until it reports 0 FAIL.
 - `skin/`: Sight CSS, board.js, template and fonts, used by `almanac preview`.
 - `inputs/`: the source material. `examples/`: a passing patch.
@@ -44,3 +46,12 @@ $ALM --out new.toml apply tasks.patch
 
 ## Handback
 Attach tasks.patch and check.py's summary line. Change history is in the tasks' notes, so there is no changes.md. A coverage file is optional. Do not commit, push, or copy anything into a live tree.
+
+## Single-file build and the Python launcher
+```
+tools/deps/tcl pack-almanac.tcl             # build dist/almanac.tcl and self-test it
+tools/deps/tcl pack-almanac.tcl --check     # exit 1 if dist/ is out of date
+tools/deps/tcl pack-almanac.tcl --unpack D  # split a packed file back into its modules, assets and fonts
+tools/deps/tcl dist/almanac.tcl setup       # write a Python launcher named almanac beside the script, print an alias
+```
+The packed file runs under Tcl 9.0.4 and 8.6. Its sections are fenced by `# >>>> MODULE ...`, `# >>>> ASSET ...` and `# >>>> FONTS` lines, so a reader can cut it apart by hand as well. In the packed script `preview` needs no skin folder; `emit style ?OUT?` prints the standard theme (artifacts.css), `emit template ?OUT?` the page template, and `emit fonts ?DIR?` writes the fonts. `preview --style PATH` swaps in your own theme in place of artifacts.css (board.css stays), and warns about variables the standard theme defines that yours does not. `setup` needs a python3 with tkinter; without it, run `tclsh almanac.tcl ...` instead.

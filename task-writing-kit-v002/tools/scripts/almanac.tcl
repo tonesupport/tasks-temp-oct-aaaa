@@ -1,5 +1,5 @@
 #!/workspace/system/deps/tcl
-# almanac.tcl — tasks.toml CLI (labor-os monolith)
+# almanac.tcl -- tasks.toml CLI (labor-os monolith)
 #
 # Spec: /workspace/system/spec/task-spec.md v0.3.1
 # Building blocks: cli.tcl + tama.tcl (this scripts/ tree; tama wraps lib/tosu).
@@ -12,9 +12,16 @@
 # Listings: lines (default) or --toml; never JSON.
 # Timestamps: local YYMMDDhhmm (America/Los_Angeles on this box).
 
-set ALMANAC_DIR [file dirname [file normalize [info script]]]
+# Tcl 8.6 reads scripts and output in the locale encoding; ask for UTF-8 (a no-op on Tcl 9).
+catch {encoding system utf-8}
+
+set ALMANAC_SELF [file normalize [info script]]
+set ALMANAC_DIR [file dirname $ALMANAC_SELF]
+
+# @@PACK:BEGIN deps (pack-almanac.tcl replaces this block with cli.tcl and tama.tcl inlined)
 source [file join $ALMANAC_DIR cli.tcl]
 source [file join $ALMANAC_DIR tama.tcl]
+# @@PACK:END deps
 
 # cli.tcl forces binary channels; almanac is character-oriented (titles/notes).
 catch {fconfigure stdout -encoding utf-8 -translation auto}
@@ -39,9 +46,9 @@ proc almanac::usage {{code 2}} {
 verbs:
   init                 ensure --file exists (skeleton if missing; no-op if present)
   add key=val ...      create task (title= or task= alias required;
-                       status defaults to later; notes optional — empty omitted;
+                       status defaults to later; notes optional -- empty omitted;
                        title= wins over task= when equal, else conflict error;
-                       optional id=/domain=/…)
+                       optional id=/domain=/...)
   ls ?filters?         list tasks (filters below); lines or --toml
   filter ?filters?     alias of ls (explicit filter surface)
   set ID key=val ...   update fields on existing id
@@ -55,6 +62,11 @@ verbs:
   apply PATCH          rebase PATCH (unified diff) onto --file and write FILE.patched; never
                        touches --file. Table-level by task id (needs the patch's base, see
                        --base), falling back to a strict line diff. Exit 3 on conflicts.
+  emit style ?OUT?     print (or write) the embedded theme stylesheet, artifacts.css
+  emit template ?OUT?  print (or write) the embedded page template, sight-index.html
+  emit fonts ?DIR?     decode the embedded fonts into DIR (default ./fonts), keeping fonts/web/ names
+  setup ?DIR?          write a Python launcher named 'almanac' (default: beside this script) and
+                       print a shell alias for it; edits no startup files
   preview ?OUT.html?   render --file as one standalone Sight HTML page (default preview.html);
                        REMOVE cards hidden by default; with --base, new/changed/done/remove
                        cards are marked and a review panel is added
@@ -70,7 +82,7 @@ filters (ls / filter / today / ready):
 examples:
   add title='File receipt'
   add task='File receipt' domain=FIN
-  add title='…' status=today domain=CTP notes='body'
+  add title='...' status=today domain=CTP notes='body'
   ls status=sched
   ls sched has=reminder
   ls domain=almanac project=almanac
@@ -85,10 +97,13 @@ options:
   --base PATH          apply: the file the patch was made against (default snapshot/tasks.toml
                        beside the kit); preview: compare against PATH and mark differences
   --out PATH           apply: output file (default FILE.patched)
-  --force              apply: write even if validation errors rise
+  --force              apply: write even if validation errors rise; emit/setup: overwrite
   --take-patch         apply: on conflict, take the patch's version of the task
   --line-diff          apply: skip table-level mode, strict line diff on --file
-  --skin DIR           preview: skin folder (default ../../skin beside this script)
+  --skin DIR           preview: read the page assets and fonts from this folder (default: the
+                       embedded copies, or ../../skin beside a loose script)
+  --style PATH         preview: replace only the theme layer (artifacts.css) with PATH; fonts
+                       are looked up beside PATH too. Structure (board.css) stays embedded.
   -h / --help          this help
 
 local now: YYMMDDhhmm via almanac::now (operator timezone).}
@@ -262,7 +277,7 @@ proc almanac::key_present {kv key} {
 }
 
 # Equality: scalars compare text; arrays require each comma-separated want as a member.
-# Special: datetime=today → local today_datetime.
+# Special: datetime=today -> local today_datetime.
 proc almanac::key_matches {kv key want} {
     if {$key eq "datetime" && $want eq "today"} {
         set want [almanac::today_datetime]
@@ -436,7 +451,7 @@ proc almanac::cmd_init {path} {
     }
     set now [almanac::now]
     set fh [open $path w]
-    puts $fh "# tasks.toml — tasks-toml-spec v0.3.1 (almanac init)"
+    puts $fh "# tasks.toml \u2014 tasks-toml-spec v0.3.1 (almanac init)"
     puts $fh "\[root\]"
     puts $fh "title = 'Root'"
     puts $fh "status = 'later'"
@@ -665,7 +680,7 @@ proc almanac::escape_basic {s} {
 }
 
 # Prefer TOML single-quoted literal; fall back to basic string if needed.
-# (TOML literals have no escape for apostrophe — never double quotes.)
+# (TOML literals have no escape for apostrophe -- never double quotes.)
 proc almanac::quote_string {s} {
     if {[string first "'" $s] < 0 && ![almanac::has_control_char $s]} {
         return "'$s'"
@@ -693,7 +708,7 @@ proc almanac::emit_notes_value {notes} {
         append body "\n"
     }
     if {[string first {'''} $body] >= 0} {
-        almanac::die "notes contain triple-quote — cannot emit as literal multiline"
+        almanac::die "notes contain triple-quote \u2014 cannot emit as literal multiline"
     }
     return "'''\n$body'''"
 }
@@ -846,7 +861,7 @@ proc almanac::append_table {path table_text} {
     almanac::atomic_write $path $text
 }
 
-# Flatten tama kv → plain fields dict + key order (file order via key_line).
+# Flatten tama kv -> plain fields dict + key order (file order via key_line).
 proc almanac::fields_from_kv {kv} {
     set fields [dict create]
     set order {}
@@ -973,8 +988,8 @@ proc almanac::after_mutation {} {
 
 
 # Auto-tag `tosu` when domain is HH|MED|CTP|FIN|DEV (case-sensitive as stored).
-# Domain stays domain= — do NOT mirror domain into tags, and do NOT invent
-# freeform tags (health, MED, …). Only auto tag additions besides required
+# Domain stays domain= -- do NOT mirror domain into tags, and do NOT invent
+# freeform tags (health, MED, ...). Only auto tag additions besides required
 # `task` (when tags absent on add) is this `tosu` merge for the domain list.
 # domain=almanac never auto-tosu. Agents filing board-design / plane plumbing
 # MUST NOT pass tags=tosu (board-plane-contract 0.1.4).
@@ -1003,7 +1018,7 @@ proc almanac::cmd_add {path args} {
     }
     set assigns [almanac::parse_assigns {*}$args]
 
-    # Alias: task= → title= (CLI filing). If both given: equal → title wins; unequal → die.
+    # Alias: task= -> title= (CLI filing). If both given: equal -> title wins; unequal -> die.
     if {[dict exists $assigns task]} {
         set taskv [dict get $assigns task]
         dict unset assigns task
@@ -1292,8 +1307,8 @@ proc almanac::doctor_ensure_aliases {} {
         set action "installed/corrected in $target"
         set alm_ok 1
         set a_ok 1
-        set alm_detail "installed → '/workspace/system/deps/tcl /workspace/system/scripts/almanac.tcl'"
-        set a_detail "installed → 'almanac'"
+        set alm_detail "installed \u2192 '/workspace/system/deps/tcl /workspace/system/scripts/almanac.tcl'"
+        set a_detail "installed \u2192 'almanac'"
     }
     return [list $alm_ok $alm_detail $a_ok $a_detail $target $action]
 }
@@ -1301,7 +1316,7 @@ proc almanac::doctor_ensure_aliases {} {
 
 proc almanac::doctor_alias_resolve_report {} {
     set lines {}
-    # Plain login non-interactive: .profile sources .bashrc but interactive guard returns early → aliases usually absent.
+    # Plain login non-interactive: .profile sources .bashrc but interactive guard returns early -> aliases usually absent.
     set lc_out {}
     catch {set lc_out [exec bash -lc {alias almanac 2>&1; alias alm 2>&1}]}
     set lc_out [string trim $lc_out]
@@ -1310,7 +1325,7 @@ proc almanac::doctor_alias_resolve_report {} {
     } else {
         lappend lines "bash -lc: no (non-interactive; .bashrc interactive guard)"
     }
-    # Interactive login loads .bashrc → .bash_aliases. Feed empty stdin; merge stderr (ioctl noise).
+    # Interactive login loads .bashrc -> .bash_aliases. Feed empty stdin; merge stderr (ioctl noise).
     set il_out {}
     catch {set il_out [exec bash -ilc {alias almanac 2>&1; echo ---; alias alm 2>&1} << {} 2>@1]}
     set il_out [string trim $il_out]
@@ -1525,7 +1540,7 @@ proc almanac::cmd_doctor {path} {
         set self /workspace/system/scripts/almanac.tcl
     }
 
-    puts "almanac doctor — $path"
+    puts "almanac doctor \u2014 $path"
     puts "----"
 
     # 1. file exists
@@ -1555,7 +1570,7 @@ proc almanac::cmd_doctor {path} {
         exit 1
     }
 
-    # 3. schema (reuse validate_report; quiet — one doctor line)
+    # 3. schema (reuse validate_report; quiet -- one doctor line)
     lassign [almanac::validate_report $doc $path 1] verrs vwarns ntasks
     set sok [expr {$verrs == 0}]
     incr fails [almanac::doctor_line $sok schema_validate "$ntasks tasks, $verrs error(s), $vwarns warning(s) (see: almanac validate)"]
@@ -1564,7 +1579,7 @@ proc almanac::cmd_doctor {path} {
     lassign [almanac::doctor_smoke_verbs $tclbin $self] vok vdetail
     incr fails [almanac::doctor_line $vok verb_smoke $vdetail]
 
-    # 5–8. board-export bake checks (temp out; production or given --file as source)
+    # 5-8. board-export bake checks (temp out; production or given --file as source)
     set exporter [almanac::doctor_hook_path]
     set hook_ok [expr {[file isfile $exporter] && [file executable $tclbin]}]
     incr fails [almanac::doctor_line $hook_ok post_write_hook_path [expr {$hook_ok ? $exporter : "missing exporter or deps tcl"}]]
@@ -1591,7 +1606,7 @@ proc almanac::cmd_doctor {path} {
         }
     }
 
-    # 10. deps tcl binary (runtime for doctor + children — never tclsh)
+    # 10. deps tcl binary (runtime for doctor + children -- never tclsh)
     set deps_ok [expr {[file executable $tclbin] && [file normalize $tclbin] eq [file normalize /workspace/system/deps/tcl]}]
     incr fails [almanac::doctor_line $deps_ok deps_tcl_binary [expr {$deps_ok ? "$tclbin (executable)" : "missing/wrong $tclbin"}]]
 
@@ -1858,7 +1873,7 @@ proc almanac::proj::board_list {doc path tags} {
         }
         if {!$ok} continue
         set tx [almanac::proj::bs $doc $b text]
-        if {[string length $tx] > 70} { set tx "[string range $tx 0 68]…" }
+        if {[string length $tx] > 70} { set tx "[string range $tx 0 68]\u2026" }
         set extra ""
         if {[llength $btags]} { append extra "  \[[join $btags {, }]\]" }
         set pt [almanac::proj::bs $doc $b promoted_to]
@@ -2860,22 +2875,102 @@ proc almanac::preview_model {doc show_notes_for source} {
     return [list "[join $lines "\n"]\n" $notes [llength $ids]]
 }
 
-proc almanac::inline_fonts {css skin} {
+# --- preview assets (v002) ---
+#
+# The page is built from four text assets and 13 fonts. In the packed script
+# (dist/almanac.tcl, made by pack-almanac.tcl) they are embedded as the
+# variables below, with non-ASCII characters written as @@U+XXXX@@ tokens so the
+# packed file is pure ASCII. In the loose script the variables do not exist and
+# the files are read from the skin folder instead (the same fallback --skin uses).
+#
+#   almanac::ASSET_sight_index_html  <-  skin/sight-index.html   (page template)
+#   almanac::ASSET_artifacts_css     <-  skin/artifacts.css      (theme layer; what `emit style` prints)
+#   almanac::ASSET_board_css         <-  skin/board.css          (structural layer)
+#   almanac::ASSET_board_js          <-  skin/board.js           (inlined into the page)
+#   almanac::FONT_blobs              <-  skin/fonts/web/*.woff2  (dict: relative path -> base64)
+
+namespace eval almanac {
+    variable ASSET_FILES {
+        sight_index_html sight-index.html
+        artifacts_css    artifacts.css
+        board_css        board.css
+        board_js         board.js
+    }
+}
+
+# Replace @@U+XXXX@@ tokens with the character they stand for.
+proc almanac::asset_decode {text} {
+    set out {}
+    set pos 0
+    while {[regexp -indices -start $pos {@@U\+([0-9A-F]{4,6})@@} $text m g]} {
+        lassign $m ms me
+        lassign $g gs ge
+        append out [string range $text $pos [expr {$ms - 1}]]
+        append out [format %c [scan [string range $text $gs $ge] %x]]
+        set pos [expr {$me + 1}]
+    }
+    append out [string range $text $pos end]
+    return $out
+}
+
+# The default skin folder for the loose script: ../../skin beside this script, or ./skin.
+proc almanac::default_skin {} {
+    foreach cand [list [file join $::ALMANAC_DIR .. .. skin] [file join $::ALMANAC_DIR skin]] {
+        if {[file isfile [file join $cand sight-index.html]]} { return $cand }
+    }
+    return {}
+}
+
+# name is one of the ASSET_FILES keys. skin (a folder) forces reading from files.
+proc almanac::asset {name {skin {}}} {
+    variable ASSET_FILES
+    if {$skin eq "" && [info exists ::almanac::ASSET_$name]} {
+        return [almanac::asset_decode [set ::almanac::ASSET_$name]]
+    }
+    if {$skin eq ""} { set skin [almanac::default_skin] }
+    if {$skin eq ""} {
+        almanac::die "no embedded $name and no skin folder found (need sight-index.html, artifacts.css, board.css, board.js, fonts/); give --skin DIR"
+    }
+    set file [dict get $ASSET_FILES $name]
+    set p [file join $skin $file]
+    if {![file isfile $p]} { almanac::die "skin file not found: $p" }
+    return [almanac::read_text $p]
+}
+
+# data: URI for a font url from the CSS (e.g. fonts/web/IBMPlexSans-Regular.woff2), or "" if not found.
+# Order: embedded blob; then the folder of --style (a theme may bring its own fonts); then the skin folder.
+proc almanac::font_uri {rel dirs} {
+    set mime [expr {[string match *.woff2 $rel] ? "font/woff2" : "font/ttf"}]
+    if {[info exists ::almanac::FONT_blobs] && [dict exists $::almanac::FONT_blobs $rel]} {
+        return "data:$mime;base64,[regsub -all {\s+} [dict get $::almanac::FONT_blobs $rel] {}]"
+    }
+    foreach d $dirs {
+        if {$d eq ""} continue
+        set p [file join $d $rel]
+        if {[file isfile $p]} {
+            set fh [open $p rb]
+            set data [read $fh]
+            close $fh
+            return "data:$mime;base64,[binary encode base64 $data]"
+        }
+    }
+    return {}
+}
+
+proc almanac::inline_fonts {css dirs} {
     set out {}
     set pos 0
     while {[regexp -indices -start $pos {url\("(fonts/[^"]+)"\)} $css m g]} {
         lassign $m ms me
         lassign $g gs ge
         append out [string range $css $pos [expr {$ms - 1}]]
-        set p [file join $skin [string range $css $gs $ge]]
-        if {![file isfile $p]} {
-            append out {url("")}
+        set rel [string range $css $gs $ge]
+        set uri [almanac::font_uri $rel $dirs]
+        if {$uri eq ""} {
+            puts stderr "almanac: preview: font not found: $rel (left as a plain url)"
+            append out [string range $css $ms $me]
         } else {
-            set fh [open $p rb]
-            set data [read $fh]
-            close $fh
-            set mime [expr {[string match *.woff2 $p] ? "font/woff2" : "font/ttf"}]
-            append out "url(\"data:$mime;base64,[binary encode base64 $data]\")"
+            append out "url(\"$uri\")"
         }
         set pos [expr {$me + 1}]
     }
@@ -2883,18 +2978,177 @@ proc almanac::inline_fonts {css skin} {
     return $out
 }
 
-proc almanac::cmd_preview {path outfile base skinarg} {
-    variable TZ
-    if {![file isfile $path]} { almanac::die "preview: no such file: $path" }
-    set skin $skinarg
-    if {$skin eq ""} {
-        foreach cand [list [file join $::ALMANAC_DIR .. .. skin] [file join $::ALMANAC_DIR skin]] {
-            if {[file isfile [file join $cand sight-index.html]]} { set skin $cand; break }
+# CSS custom properties: names defined (--x: ...) in css, and names used (var(--x)) in css.
+proc almanac::css_vars_defined {css} {
+    set out {}
+    foreach {all name} [regexp -all -inline {(--[A-Za-z0-9_-]+)[ \t]*:} $css] { lappend out $name }
+    return [lsort -unique $out]
+}
+proc almanac::css_vars_used {css} {
+    set out {}
+    # only var(--x) with no fallback value counts as needed
+    foreach {all name} [regexp -all -inline {var\((--[A-Za-z0-9_-]+)[ \t]*\)} $css] { lappend out $name }
+    return [lsort -unique $out]
+}
+
+# --- emit (v002): print or write the embedded assets ---
+
+proc almanac::cmd_emit {what out force} {
+    switch -- $what {
+        style    { set text [almanac::asset artifacts_css] }
+        template { set text [almanac::asset sight_index_html] }
+        fonts    { almanac::emit_fonts [expr {$out eq "" ? "fonts" : $out}] $force; return }
+        default  { almanac::die "emit: unknown asset '$what' (style, template or fonts)" }
+    }
+    if {$out eq ""} {
+        puts -nonewline $text
+        return
+    }
+    if {[file exists $out] && !$force} { almanac::die "emit: $out exists (use --force to overwrite)" }
+    set dir [file dirname $out]
+    if {$dir ne "." && ![file isdirectory $dir]} { file mkdir $dir }
+    almanac::atomic_write $out $text
+    puts "emit: wrote $out"
+}
+
+# Fonts keep their original relative path below DIR (fonts/web/X.woff2 -> DIR/web/X.woff2), so a style file
+# placed beside DIR keeps resolving url("fonts/web/X.woff2") when DIR is ./fonts.
+proc almanac::emit_fonts {dir force} {
+    set skin {}
+    if {![info exists ::almanac::FONT_blobs]} {
+        set skin [almanac::default_skin]
+        if {$skin eq ""} { almanac::die "emit fonts: no embedded fonts and no skin folder found" }
+    }
+    set n 0
+    if {[info exists ::almanac::FONT_blobs]} {
+        set items {}
+        dict for {rel b64} $::almanac::FONT_blobs { lappend items $rel [binary decode base64 [regsub -all {\s+} $b64 {}]] }
+    } else {
+        set items {}
+        foreach p [lsort [glob -nocomplain -directory [file join $skin fonts web] *.woff2]] {
+            set fh [open $p rb]
+            lappend items "fonts/web/[file tail $p]" [read $fh]
+            close $fh
         }
     }
-    if {$skin eq "" || ![file isfile [file join $skin sight-index.html]]} {
-        almanac::die "preview: skin folder not found (need sight-index.html, artifacts.css, board.css, board.js, fonts/); give --skin DIR"
+    foreach {rel data} $items {
+        set sub [string range $rel [string length "fonts/"] end]
+        set target [file join $dir $sub]
+        if {[file exists $target] && !$force} { almanac::die "emit fonts: $target exists (use --force to overwrite)" }
+        file mkdir [file dirname $target]
+        set fh [open $target wb]
+        puts -nonewline $fh $data
+        close $fh
+        incr n
     }
+    puts "emit: wrote $n fonts below $dir"
+}
+
+# --- setup (v002): write a Python launcher that runs this script on the Tcl inside Python ---
+
+namespace eval almanac {
+    variable LAUNCHER {#!/usr/bin/env python3
+# almanac launcher: runs almanac.tcl on the Tcl that Python carries (tkinter.Tcl). Written by `almanac.tcl setup`.
+# Standard library only. Set ALMANAC_TCL to point at a different almanac.tcl.
+import os
+import sys
+from pathlib import Path
+
+DEFAULT = __ALMANAC_DEFAULT__
+
+
+def main():
+    try:
+        import tkinter
+    except ImportError:
+        sys.stderr.write("almanac: this python3 has no tkinter, which the launcher uses to reach Tcl.\n")
+        sys.stderr.write("almanac: install it (for example the python3-tk package), or run: tclsh almanac.tcl ...\n")
+        return 127
+    script = Path(os.environ.get("ALMANAC_TCL") or DEFAULT)
+    if not script.is_file():
+        sys.stderr.write("almanac: cannot find %s (set ALMANAC_TCL)\n" % script)
+        return 127
+    tcl = tkinter.Tcl()
+    state = []
+
+    class TclExit(Exception):
+        pass
+
+    def do_exit(*args):
+        # The first exit code wins, even if Tcl code swallows the exception with catch.
+        if not state:
+            try:
+                state.append(int(args[0]) if args else 0)
+            except ValueError:
+                state.append(1)
+        raise TclExit()
+
+    tcl.createcommand("exit", do_exit)
+    try:
+        tcl.eval("encoding system utf-8")
+        tcl.call("set", "argv0", str(script))
+        tcl.call("set", "argv", tuple(sys.argv[1:]))
+        tcl.call("set", "argc", len(sys.argv) - 1)
+        tcl.call("source", "-encoding", "utf-8", str(script))
+    except TclExit:
+        pass
+    except tkinter.TclError as err:
+        if not state:
+            sys.stderr.write("almanac: %s\n" % err)
+            state.append(1)
+    finally:
+        try:
+            tcl.eval("flush stdout; flush stderr")
+        except Exception:
+            pass
+    return state[0] if state else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+}
+}
+
+proc almanac::sh_quote {s} {
+    return "'[string map [list ' {'\''}] $s]'"
+}
+
+proc almanac::cmd_setup {dir force} {
+    variable LAUNCHER
+    set self $::ALMANAC_SELF
+    if {$dir eq ""} { set dir [file dirname $self] }
+    set dir [file normalize $dir]
+    file mkdir $dir
+    set target [file join $dir almanac]
+    if {[file exists $target] && !$force} {
+        set old [almanac::read_text $target]
+        if {[string first "almanac launcher:" $old] < 0} {
+            almanac::die "setup: $target exists and is not an almanac launcher (use --force to overwrite)"
+        }
+    }
+    if {[file dirname $self] eq $dir} {
+        set default {Path(__file__).resolve().parent / "almanac.tcl"}
+    } else {
+        set default "Path([almanac::py_quote $self])"
+    }
+    almanac::atomic_write $target [string map [list __ALMANAC_DEFAULT__ $default] $LAUNCHER]
+    file attributes $target -permissions 0755
+    puts "setup: wrote launcher $target (runs $self)"
+    puts "setup: add this alias to your shell startup file yourself; nothing was modified:"
+    puts "alias almanac=[almanac::sh_quote $target]"
+}
+
+proc almanac::py_quote {s} {
+    return "\"[string map [list \\ \\\\ \" \\\"] $s]\""
+}
+
+proc almanac::cmd_preview {path outfile base skinarg stylearg} {
+    variable TZ
+    if {![file isfile $path]} { almanac::die "preview: no such file: $path" }
+    if {$skinarg ne "" && ![file isfile [file join $skinarg sight-index.html]]} {
+        almanac::die "preview: --skin $skinarg has no sight-index.html"
+    }
+    if {$stylearg ne "" && ![file isfile $stylearg]} { almanac::die "preview: no such style file: $stylearg" }
     set doc [almanac::load $path]
     set r [almanac::preview_tasks $doc]
 
@@ -2957,8 +3211,8 @@ proc almanac::cmd_preview {path outfile base skinarg} {
                 set x [expr {$ha ? [almanac::show_field $f [dict get $a $f]] : ""}]
                 set y [expr {$hb ? [almanac::show_field $f [dict get $b $f]] : ""}]
                 if {$ha && $hb && [dict get $a $f] eq [dict get $b $f]} continue
-                if {!$ha} { set x "∅" }
-                if {!$hb} { set y "∅" }
+                if {!$ha} { set x "\u2205" }
+                if {!$hb} { set y "\u2205" }
                 append diffs "<tr><td class=\"k\">[almanac::hesc $f]</td><td><del><pre>[almanac::hesc $x]</pre></del></td><td><ins><pre>[almanac::hesc $y]</pre></ins></td></tr>"
             }
             set title [expr {[dict exists $b title] ? [dict get $b title] : ""}]
@@ -2970,20 +3224,37 @@ proc almanac::cmd_preview {path outfile base skinarg} {
             append summary ", <span style=\"color:#8b2e2e\">[llength $gone] removed: [almanac::hesc [join $gone {, }]]</span>"
         }
         append summary "</h2><p>Source: [almanac::hesc [file tail $path]] against [almanac::hesc [file tail $base]]. Marked cards below: "
-        foreach x {new changed done remove} { append summary "<span style=\"color:[dict get $color $x]\">■ $x</span> " }
+        foreach x {new changed done remove} { append summary "<span style=\"color:[dict get $color $x]\">\u25a0 $x</span> " }
         append summary ". Done cards show when the done filter is on; REMOVE cards are hidden until the remove filter is turned on.</p><table>$rows</table></section>"
     } else {
         set summary "<section class=\"twk-review\"><h2>Preview: [almanac::hesc [file tail $path]]</h2><p>No base given, so nothing is marked. REMOVE cards are hidden until the remove filter is turned on.</p></section>"
     }
 
     # Assemble the page
-    set css [almanac::inline_fonts [almanac::read_text [file join $skin artifacts.css]] $skin]
-    append css "\n" [almanac::read_text [file join $skin board.css]]
-    set js [almanac::read_text [file join $skin board.js]]
-    set page [almanac::read_text [file join $skin sight-index.html]]
+    set board_css [almanac::asset board_css $skinarg]
+    if {$stylearg ne ""} {
+        # --style replaces only the theme layer; board.css (structure) stays. The standard theme is the
+        # contract: warn about any variable it defines (or the layout needs without a fallback) that this style lacks.
+        set theme [almanac::read_text $stylearg]
+        set have [concat [almanac::css_vars_defined $theme] [almanac::css_vars_defined $board_css]]
+        set need [lsort -unique [concat [almanac::css_vars_defined [almanac::asset artifacts_css $skinarg]] [almanac::css_vars_used $board_css]]]
+        set lack {}
+        foreach v $need { if {$v ni $have} { lappend lack $v } }
+        if {[llength $lack]} {
+            puts stderr "almanac: preview: --style does not define [llength $lack] variable(s) the standard theme (almanac emit style) does: [join $lack {, }]"
+        }
+        set fontdirs [list [file dirname [file normalize $stylearg]] $skinarg]
+    } else {
+        set theme [almanac::asset artifacts_css $skinarg]
+        set fontdirs [list $skinarg [almanac::default_skin]]
+    }
+    set css [almanac::inline_fonts $theme $fontdirs]
+    append css "\n" $board_css
+    set js [almanac::asset board_js $skinarg]
+    set page [almanac::asset sight_index_html $skinarg]
     set page [string map [list { data-sight-locked="1"} {} {<title>sight</title>} {<title>sight preview</title>} \
         {class="board-page sight-locked"} {class="board-page"} \
-        {sight · gated plane ·} {sight preview · unencrypted · not live ·}] $page]
+        "sight \u00b7 gated plane \u00b7" "sight preview \u00b7 unencrypted \u00b7 not live \u00b7"] $page]
     regsub -all {<link rel="stylesheet" href="assets/[^"]+">[ \t\r\n]*} $page {} page
     set a [string first "<style>" $page]
     set b [string first "</style>" $page $a]
@@ -3044,12 +3315,13 @@ proc almanac::main {argv} {
         {--base      option base}
         {--out       option out}
         {--skin      option skin}
+        {--style     option style}
         {--force     flag force}
         {--take-patch flag take}
         {--line-diff flag linediff}
     }
     set parsed [cli::parse $argv $spec -defaults [dict create help 0 file $DEFAULT_FILE toml 0 \
-        base {} out {} skin {} force 0 take 0 linediff 0]]
+        base {} out {} skin {} style {} force 0 take 0 linediff 0]]
     if {[lindex $parsed 0] ne "ok"} {
         set kind [lindex $parsed 1]
         set flag [lindex $parsed 2]
@@ -3111,7 +3383,15 @@ proc almanac::main {argv} {
         preview {
             if {[llength $rest] > 1} { almanac::die "preview: at most one output file" }
             almanac::cmd_preview $path [expr {[llength $rest] ? [lindex $rest 0] : "preview.html"}] \
-                [dict get $flags base] [dict get $flags skin]
+                [dict get $flags base] [dict get $flags skin] [dict get $flags style]
+        }
+        emit {
+            if {[llength $rest] < 1 || [llength $rest] > 2} { almanac::die "emit: usage: emit style|template ?OUT?  or  emit fonts ?DIR?" }
+            almanac::cmd_emit [lindex $rest 0] [lindex $rest 1] [dict get $flags force]
+        }
+        setup {
+            if {[llength $rest] > 1} { almanac::die "setup: at most one directory" }
+            almanac::cmd_setup [lindex $rest 0] [dict get $flags force]
         }
         change {
             if {[llength $rest] < 2} { almanac::die "change: need id and a note" }

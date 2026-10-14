@@ -75,3 +75,15 @@ Also done in the same release: almanac show ID prints one task by identity, and 
 Entry 13, 2026-10-14: Atkinson Next removed from the skin
 
 The Atkinson Next font face was declared in artifacts.css but no rule used it, so it was removed along with its file. The preview now embeds the 13 IBM Plex faces only. Fonts reach the preview at render time: almanac preview reads each url("fonts/...") in the skin CSS and inlines the file as a base64 data URI. The font license file stays in the skin folder and is never written into the HTML.
+
+Entry 14, 2026-10-14: Single-file build, and the loose script stays the one to edit
+
+tools/scripts/almanac.tcl remains the editable script. pack-almanac.tcl (Tcl, run on the bundled interpreter) builds dist/almanac.tcl from it: cli.tcl and the tosu tama.tcl are inlined in place of the deps block, the four text assets (page template, artifacts.css, board.css, board.js) are embedded as braced literals, and the 13 IBM Plex WOFF2 files are embedded as a dict of base64. The loose script reads the same assets from skin/ when the embedded variables do not exist, so there is one preview code path. Sections of the packed file are fenced with MODULE, ASSET and FONTS lines; pack-almanac.tcl --unpack cuts them back apart, and --check says whether dist/ is current. Output is deterministic.
+
+Entry 15, 2026-10-14: Pure ASCII, and what it means
+
+Tcl 8.6 reads a script in the locale encoding (Latin-1 in a POSIX locale) while Tcl 9 reads UTF-8, so a non-ASCII character inside a script turned into mojibake under 8.6 (seen in the preview review panel). The fix keeps every script file pure ASCII: strings use \u escapes, comments use plain ASCII, and the embedded assets store non-ASCII characters as @@U+XXXX@@ tokens that almanac::asset_decode turns back at run time. Nothing about the data changes: tasks.toml, the emitted stylesheet and the HTML pages are still UTF-8 and byte-identical to their sources. The build refuses non-ASCII in the dev script. Tracking Tcl 8.6.14 breakage: a tclsh 8.6.14 was built from source for testing; the Python launcher itself was only tested on a tkinter that embeds Tcl 9.0.4.
+
+Entry 16, 2026-10-14: emit and setup
+
+emit style, template and fonts print or write the embedded assets (script was dropped: board.js is inlined into the page and stays a source file). With an output path that already exists, emit refuses unless --force. emit fonts keeps the original relative layout below the target directory (fonts/web/X.woff2 becomes DIR/web/X.woff2), so a stylesheet placed beside ./fonts keeps resolving its font urls. preview --style replaces only the theme layer and looks up fonts beside the style file when they are not embedded. setup writes a Python launcher (stdlib only, uses tkinter.Tcl, intercepts exit so the first exit code wins) and prints an alias line; it edits no startup files.
