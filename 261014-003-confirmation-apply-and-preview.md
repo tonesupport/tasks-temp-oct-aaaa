@@ -6,7 +6,7 @@ The uploaded REMOVE zip is here and complete. It contains the REMOVE versions of
 
 patch-1.html has not been applied to anything I can see. It is a rendered review of a separate earlier patch: 33 new tasks from the survey breakdown, rendered on Oct 13 at 5:31 PM Pacific, all with ids that appear neither in the snapshot nor in tasks.patch. Its review panel lists every field of every one of the 33 tasks in full (title, status, domain, project, notes, created, updated, tags), so I can reconstruct each task exactly from the page. I can't see your live tasks.toml, so I can't tell whether you already applied those 33 there. I will assume you did not, and I will mention which of them look already present if you give me a newer tasks.toml.
 
-tasks.patch applies cleanly to the snapshot with the strict v001 applier and touches 51 tables, with 40 tasks listed in changes.md. Because its ids do not overlap patch-1's, patch-1 and tasks.patch are independent, which makes them a good pair for testing the table-level rebase: the second one applied onto a file that has already moved on.
+tasks.patch applies cleanly to the snapshot with the strict v001 applier and shows about 50 task tables in its hunks (context included), with 40 tasks listed in changes.md. Because its ids do not overlap patch-1's, patch-1 and tasks.patch are independent, which makes them a good pair for testing the table-level rebase: the second one applied onto a file that has already moved on.
 
 ## What I will do, in order
 
