@@ -1,0 +1,70 @@
+<script id="wacl-loader">
+/* ================================================================
+   WACL embedded runtime: Tcl 9.1.0 as WebAssembly (tcllib comes separately, see core-tcllib).
+   The .wasm binary and the VFS .data payloads are base64 below.
+   fetch() and XMLHttpRequest are shimmed so the emscripten glue
+   loads them with no network access; everything else passes through.
+   ================================================================ */
+window.__waclAssets = {
+  "wacl.wasm": "@@WASM_B64@@",
+  "wacl-library.data": "@@LIB_B64@@",
+  "wacl-custom.data": "@@CUSTOM_B64@@"
+};
+(function () {
+  function b64ToU8(b64) {
+    const bin = atob(b64);
+    const u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    return u8;
+  }
+  const cache = {};
+  function assetBytes(name) {
+    if (!cache[name]) cache[name] = b64ToU8(window.__waclAssets[name]);
+    return cache[name];
+  }
+  function assetKeyFor(url) {
+    const u = String(url);
+    for (const k of Object.keys(window.__waclAssets))
+      if (u.endsWith(k)) return k;
+    return null;
+  }
+  const realFetch = window.fetch.bind(window);
+  window.fetch = function (url, opts) {
+    const k = assetKeyFor(url);
+    if (k) return Promise.resolve(new Response(assetBytes(k).slice()));
+    return realFetch(url, opts);
+  };
+  const RealXHR = window.XMLHttpRequest;
+  window.XMLHttpRequest = function () {
+    let method = 'GET', url = '', respType = '';
+    const self = this;
+    this.onload = null; this.onerror = null;
+    this.status = 0; this.response = null;
+    Object.defineProperty(this, 'responseType', {
+      get() { return respType; }, set(v) { respType = v; }
+    });
+    this.open = function (m, u) { method = m; url = u; };
+    this.send = function () {
+      const k = assetKeyFor(url);
+      if (k) {
+        setTimeout(() => {
+          const u8 = assetBytes(k);
+          self.response = u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength);
+          self.status = 200;
+          if (self.onload) self.onload();
+        }, 0);
+        return;
+      }
+      const xhr = new RealXHR();
+      xhr.responseType = respType;
+      xhr.onload = function () {
+        self.status = xhr.status; self.response = xhr.response;
+        if (self.onload) self.onload();
+      };
+      xhr.onerror = function () { if (self.onerror) self.onerror(); };
+      xhr.open(method, url);
+      xhr.send();
+    };
+  };
+})();
+</script>
