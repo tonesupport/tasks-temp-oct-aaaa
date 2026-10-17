@@ -1,0 +1,15 @@
+<script id="wacl-ready">
+/* Capture the interpreter so Bridge.startup() can build the shell on it. */
+(function () {
+  function onWacl(interp) {
+    window.__waclInterp = interp;
+    window.__waclModule = interp.Module;
+    window.__waclReady = true;
+    try { window.__waclModule.FS.mkdirTree('/home/shell'); } catch (e) {}
+    const cb = window.__waclReadyCb;
+    window.__waclReadyCb = null;
+    if (cb) cb(interp);
+  }
+  if (window.wacl) window.wacl.onReady(onWacl);
+})();
+</script>
