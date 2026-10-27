@@ -1,6 +1,6 @@
 # Session manifest: tasks.toml kit v002, apply and preview in almanac.tcl, and the single-file build
 
-This bundle collects every file involved in the session that ran from 2026-10-14 to 2026-10-15 (bundled 2026-10-27), on the repository tonesupport/tasks-temp-oct-aaaa, branch claude/jolly-edison-grdceh. It is a snapshot of the working tree at commit d3c9ec0, plus the file you uploaded during the session, diffs of every changed script, and this manifest. The companion document 261027-010-script-change-documentation.md describes every script change in prose.
+This bundle collects every file involved in the session that ran from 2026-10-14 to 2026-10-15 (bundled 2026-10-27), on the repository tonesupport/tasks-temp-oct-aaaa, branch claude/jolly-edison-grdceh. It is a snapshot of the committed working tree at the branch head when the bundle was made (commit d3c9ec0 plus the commit that adds these two documents), plus the file you uploaded during the session, diffs of every changed script, and this manifest. The companion document 261027-010-script-change-documentation.md describes every script change in prose.
 
 ## What the session did, in order
 
@@ -10,7 +10,7 @@ You first asked about using your cloud credit; I explained I cannot see billing 
 
 At the top level are this manifest (261027-009-session-manifest.md) and the script change documentation (261027-010-script-change-documentation.md), plus git-log.txt, the commit history of the branch.
 
-The folder repo holds the complete working tree of the repository at commit d3c9ec0, without the .git folder. Everything below describes files inside it.
+The folder repo holds the complete working tree of the repository at that head, without the .git folder. Everything below describes files inside it.
 
 The folder inputs holds the one file you attached during the session, 261014-004-remove-status-kit-changes.zip, exactly as uploaded.
 
